@@ -7,85 +7,44 @@ export type MessageType = {
     logo: any;
 };
 
+function daysFromNowISO(days: number, hour = 17) {
+  const date = new Date();
+  date.setDate(date.getDate() + days);
+  date.setHours(hour, 0, 0, 0);
+  return date.toISOString();
+}
+
 export const messages: MessageType[] = [
     {
         id: 1,
-        date: "FIRST BOOK ENDS 12/12 5:00PM",
+        date: daysFromNowISO(2),
         title: "CAPE & COWL: LOW GRADE GOLDEN AGE GOLD",
         shipping: "SHIPS DIRECT FROM STORE",
-        backgroundImage: require("../assets/images/background-images/batman-wallpaper.png"),
+        backgroundImage: require("../assets/images/background-images/batman-background.png"),
         logo: require("../assets/images/logos/cap-&-cowl.png"),
     },
     {
         id: 2,
-        date: "FIRST BOOK ENDS 12/12 5:00PM",
-        title: "CAPE & COWL: LOW GRADE GOLDEN AGE GOLD",
+        date: daysFromNowISO(3),
+        title: "CLAWS ARE OUT: WOLVERINE RETURNS",
         shipping: "SHIPS DIRECT FROM STORE",
-        backgroundImage: require("../assets/images/background-images/batman-wallpaper.png"),
-        logo: require("../assets/images/logos/cap-&-cowl.png"),
+        backgroundImage: require("../assets/images/background-images/wolverine-background.png"),
+        logo: require("../assets/images/logos/wolverinelogo.png"),
     },
     {
         id: 3,
-        date: "FIRST BOOK ENDS 12/12 5:00PM",
-        title: "CAPE & COWL: LOW GRADE GOLDEN AGE GOLD",
+        date: daysFromNowISO(1),
+        title: "SPIDER-MAN: WEB OF SHADOWS",
         shipping: "SHIPS DIRECT FROM STORE",
-        backgroundImage: require("../assets/images/background-images/batman-wallpaper.png"),
-        logo: require("../assets/images/logos/cap-&-cowl.png"),
+        backgroundImage: require("../assets/images/background-images/spidermanbackground.png"),
+        logo: require("../assets/images/logos/spiderman-logo.png"),
     },
     {
         id: 4,
-        date: "FIRST BOOK ENDS 12/12 5:00PM",
-        title: "CAPE & COWL: LOW GRADE GOLDEN AGE GOLD",
+        date: daysFromNowISO(0),
+        title: "GODS AMOUNG US: SUPERMAN RISES",
         shipping: "SHIPS DIRECT FROM STORE",
-        backgroundImage: require("../assets/images/background-images/batman-wallpaper.png"),
-        logo: require("../assets/images/logos/cap-&-cowl.png"),
-    },
-    {
-        id: 5,
-        date: "FIRST BOOK ENDS 12/12 5:00PM",
-        title: "CAPE & COWL: LOW GRADE GOLDEN AGE GOLD",
-        shipping: "SHIPS DIRECT FROM STORE",
-        backgroundImage: require("../assets/images/background-images/batman-wallpaper.png"),
-        logo: require("../assets/images/logos/cap-&-cowl.png"),
-    },
-    {
-        id: 6,
-        date: "FIRST BOOK ENDS 12/12 5:00PM",
-        title: "CAPE & COWL: LOW GRADE GOLDEN AGE GOLD",
-        shipping: "SHIPS DIRECT FROM STORE",
-        backgroundImage: require("../assets/images/background-images/batman-wallpaper.png"),
-        logo: require("../assets/images/logos/cap-&-cowl.png"),
-    },
-    {
-        id: 7,
-        date: "FIRST BOOK ENDS 12/12 5:00PM",
-        title: "CAPE & COWL: LOW GRADE GOLDEN AGE GOLD",
-        shipping: "SHIPS DIRECT FROM STORE",
-        backgroundImage: require("../assets/images/background-images/batman-wallpaper.png"),
-        logo: require("../assets/images/logos/cap-&-cowl.png"),
-    },
-    {
-        id: 8,
-        date: "FIRST BOOK ENDS 12/12 5:00PM",
-        title: "CAPE & COWL: LOW GRADE GOLDEN AGE GOLD",
-        shipping: "SHIPS DIRECT FROM STORE",
-        backgroundImage: require("../assets/images/background-images/batman-wallpaper.png"),
-        logo: require("../assets/images/logos/cap-&-cowl.png"),
-    },
-    {
-        id: 9,
-        date: "FIRST BOOK ENDS 12/12 5:00PM",
-        title: "CAPE & COWL: LOW GRADE GOLDEN AGE GOLD",
-        shipping: "SHIPS DIRECT FROM STORE",
-        backgroundImage: require("../assets/images/background-images/batman-wallpaper.png"),
-        logo: require("../assets/images/logos/cap-&-cowl.png"),
-    },
-    {
-        id: 10,
-        date: "FIRST BOOK ENDS 12/12 5:00PM",
-        title: "CAPE & COWL: LOW GRADE GOLDEN AGE GOLD",
-        shipping: "SHIPS DIRECT FROM STORE",
-        backgroundImage: require("../assets/images/background-images/batman-wallpaper.png"),
-        logo: require("../assets/images/logos/cap-&-cowl.png"),
+        backgroundImage: require("../assets/images/background-images/superman-background.png"),
+        logo: require("../assets/images/logos/superman-logo.png"),
     },
 ];

@@ -1,23 +1,33 @@
-import { differenceInMinutes, differenceInHours, differenceInDays } from "date-fns";
+import {
+  differenceInMinutes,
+  differenceInHours,
+  differenceInDays,
+} from "date-fns";
 
-// Format a number to a shorter format (e.g., 1000 -> 1K)
-export const formatNumber = (num: number): string => {
-  if (num >= 1000) return Math.floor(num / 1000) + "K";
-  return num.toString();
-};
-
-//  Format a date to a short relative format (e.g., 2m, 1h, 3d)
-export const formatDate = (dateString: string): string => {
+export const formatTimeRemaining = (dateString: string): string => {
   const date = new Date(dateString);
   const now = new Date();
 
-  const minutes = differenceInMinutes(now, date);
-  const hours = differenceInHours(now, date);
-  const days = differenceInDays(now, date);
+  if (date <= now) return "ENDED";
 
-  if (minutes < 1) return "now";
-  if (minutes < 60) return `${minutes}m`;
-  if (hours < 24) return `${hours}h`;
-  if (days < 7) return `${days}d`;
-  return `${Math.floor(days / 7)}w`;
+  const minutes = differenceInMinutes(date, now);
+  const hours = differenceInHours(date, now);
+  const days = differenceInDays(date, now);
+
+  if (minutes < 1) return "Now";
+
+  if (minutes < 60) {
+    return `${minutes} Minute${minutes === 1 ? "" : "s"}`;
+  }
+
+  if (hours < 24) {
+    return `${hours} Hour${hours === 1 ? "" : "s"}`;
+  }
+
+  if (days < 7) {
+    return `${days} Day${days === 1 ? "" : "s"}`;
+  }
+
+  const weeks = Math.floor(days / 7);
+  return `${weeks} Week${weeks === 1 ? "" : "s"}`;
 };
