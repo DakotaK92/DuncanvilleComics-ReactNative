@@ -29,7 +29,7 @@ export default function Index() {
       >
 
         <View className="pt-4 px-4">
-          <Text className="text-2xl font-gothamBold text-center  text-white bg-red-500/80 py-2 rounded">
+          <Text className="text-2xl font-gothamBold text-center  text-white bg-red-600 py-2 rounded">
             IN STORE COMIC EVENTS
           </Text>
         </View>

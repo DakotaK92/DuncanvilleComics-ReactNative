@@ -4,7 +4,7 @@ import { comics } from "../data/comics";
 const ComicCard = ({ comic }: { comic: Comic }) => {
   return (
     <View className="w-1/2 p-2">
-      <View className="bg-white/50 rounded-xl overflow-hidden p-2 shadow">
+      <View className="bg-white rounded-xl overflow-hidden p-2 shadow">
         <Image
           source={comic.image}
           className="w-full h-48 mb-2 rounded"

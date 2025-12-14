@@ -29,8 +29,8 @@ const cart = () => {
         >
           {/* Title */}
           <View className="pt-4 px-4">
-            <Text className="text-2xl font-gothamBold text-center mb-1 text-black bg-yellow-500/80 py-2 rounded">
-              New In Store Comics
+            <Text className="text-2xl font-gothamBold text-center mb-1 text-black bg-amber-500 py-2 rounded">
+              BEST COMICS TO READ
             </Text>
           </View>
 
