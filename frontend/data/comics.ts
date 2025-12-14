@@ -1,18 +1,19 @@
-import mongoose from "mongoose";
-import Comic from "../../backend/src/models/comic";
+export type Comic = {
+  id: string;
+  image: any;
+  title: string;
+};
 
-await mongoose.connect(config.env.MONGO_URI);
-
-await Comic.insertMany([
+export const comics: Comic[] = [
   {
+    id: "1",
+    image: require("../assets/images/comics/amazing-fantasy-15.jpg"),
     title: "Amazing Fantasy #15",
-    imageUrl: "https://...",
   },
   {
+    id: "2",
+    image: require("../assets/images/comics/amazing-fantasy-15.jpg"),
     title: "Avengers #1",
-    imageUrl: "https://...",
   },
-]);
-
-console.log("Comics added");
-process.exit();
+  // etc...
+];
