@@ -13,7 +13,6 @@ export const comics: Comic[] = [
   {
     id: "2",
     image: require("../assets/images/comics/amazing-fantasy-15.jpg"),
-    title: "Avengers #1",
+    title: "Amazing Fantasy #15",
   },
-  // etc...
 ];
