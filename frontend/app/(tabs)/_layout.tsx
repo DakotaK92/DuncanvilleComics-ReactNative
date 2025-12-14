@@ -39,7 +39,7 @@ const TabsLayout = () => {
                 }}
             />
             <Tabs.Screen
-                name="trophies"
+                name="events"
                 options={{
                     title: "",
                     tabBarIcon: ({ color, size}) => <Ionicons name="trophy-sharp" size={size} color={color} />

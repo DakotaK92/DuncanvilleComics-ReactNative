@@ -1,6 +1,6 @@
 import AntDesign from '@expo/vector-icons/build/AntDesign'
 import React from 'react'
-import { Text, View, Image, ImageBackground } from 'react-native'
+import { View, Image, ImageBackground } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import SignOutButton from '../../components/SignOutButton'
 
@@ -23,6 +23,7 @@ const cart = () => {
         className="flex-1"
         resizeMode="cover"
       >
+        
         
       </ImageBackground>
     </SafeAreaView>

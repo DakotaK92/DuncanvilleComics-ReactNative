@@ -12,8 +12,19 @@ export default function RootLayout() {
 
 const [fontsLoaded] = useFonts({
   "Gotham-Black": require("../assets/fonts/GothamBlack.ttf"),
+  "Gotham-BlackItalic": require("../assets/fonts/GothamBlackItalic.ttf"),
   "Gotham-Bold": require("../assets/fonts/GothamBold.ttf"),
-  "Gotham-Medium": require("../assets/fonts/GothamMedium.ttf")
+  "Gotham-BoldItalic": require("../assets/fonts/GothamBoldItalic.ttf"),
+  "Gotham-Light": require("../assets/fonts/GothamLight.ttf"),
+  "Gotham-LightItalic": require("../assets/fonts/GothamLightItalic.ttf"),
+  "Gotham-Medium": require("../assets/fonts/GothamMedium.ttf"),
+  "Gotham-MediumItalic": require("../assets/fonts/GothamMediumItalic.ttf"),
+  "Gotham-Thin": require("../assets/fonts/GothamThin.ttf"),
+  "Gotham-ThinItalic": require("../assets/fonts/GothamThinItalic.ttf"),
+  "Gotham-Ultra": require("../assets/fonts/GothamUltra.ttf"),
+  "Gotham-UltraItalic": require("../assets/fonts/GothamUltraItalic.ttf"),
+  "Gotham-XLight": require("../assets/fonts/GothamXLight.ttf"),
+  "Gotham-XLightItalic": require("../assets/fonts/GothamXLightItalic.ttf"),
 });
 
   if (!fontsLoaded) return null;

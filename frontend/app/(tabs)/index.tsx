@@ -1,9 +1,11 @@
 import "../../global.css";
+
+import { SafeAreaView } from "react-native-safe-area-context";
+import { ImageBackground, View, Image } from "react-native";
+import AntDesign from '@expo/vector-icons/AntDesign';
+
 import SignOutButton from "../../components/SignOutButton";
 import HomeScreen from "@/components/HomeScreen";
-import { SafeAreaView } from "react-native-safe-area-context";
-import AntDesign from '@expo/vector-icons/AntDesign';
-import { ImageBackground, View, Image, Text } from "react-native";
 
 export default function Index() {
   return (
@@ -23,9 +25,9 @@ export default function Index() {
         className="flex-1"
         resizeMode="cover"
       >
-
+      {/*Content in Body*/}
       <HomeScreen />
-
+      
       </ImageBackground>
     </SafeAreaView>
   );

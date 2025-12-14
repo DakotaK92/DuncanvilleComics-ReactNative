@@ -6,9 +6,20 @@ module.exports = {
   theme: {
     extend: {
       fontFamily: {
-        gothamMedium: ["Gotham-Medium"],
-        gothamBold: ["Gotham-Bold"],
         gothamBlack: ["Gotham-Black"],
+        gothamBlackItalic: ["Gotham-BlackItalic"],
+        gothamBold: ["Gotham-Bold"],
+        gothamBoldItalic: ["Gotham-BoldItalic"],
+        gothamLight: ["Gotham-Light"],
+        gothamLightItalic: ["Gotham-LightItalic"],
+        gothamMedium: ["Gotham-Medium"],
+        gothamMediumItalic: ["Gotham-MediumItalic"],
+        gothamThin: ["Gotham-Thin"],
+        gothamThinItalic: ["Gotham-ThinItalic"],
+        gothamUltra: ["Gotham-Ultra"],
+        gothamUltraItalic: ["Gotham-UltraItalic"],
+        gothamXLight: ["Gotham-XLight"],
+        gothamXLightItalic: ["Gotham-XLightItalic"],
       }
     },
   },
