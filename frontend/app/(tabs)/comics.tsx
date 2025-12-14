@@ -1,8 +1,12 @@
-import AntDesign from '@expo/vector-icons/build/AntDesign'
 import React from 'react'
 import { View, Image, ImageBackground } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
+
+import AntDesign from '@expo/vector-icons/build/AntDesign'
+
 import SignOutButton from '../../components/SignOutButton'
+import ComicScreen from '../../components/ComicScreen'
+
 
 const cart = () => {
   return (
@@ -23,8 +27,10 @@ const cart = () => {
         className="flex-1"
         resizeMode="cover"
       >
-        
-        
+
+      {/*Content in Body*/}
+      <ComicScreen />
+
       </ImageBackground>
     </SafeAreaView>
   )

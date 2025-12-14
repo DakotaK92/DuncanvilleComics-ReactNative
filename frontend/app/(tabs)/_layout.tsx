@@ -46,10 +46,10 @@ const TabsLayout = () => {
                 }}
             />
             <Tabs.Screen
-                name="cart"
+                name="comics"
                 options={{
                     title: "",
-                    tabBarIcon: ({ color, size}) => <FontAwesome6 name="cart-shopping" size={size} color={color} />
+                    tabBarIcon: ({ color, size}) => <Ionicons name="reader" size={size} color={color} />
                 }}
             />
         </Tabs>
