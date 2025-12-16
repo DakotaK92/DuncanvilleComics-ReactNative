@@ -7,7 +7,7 @@ const ComicCard = ({ comic }: { comic: Comic }) => {
       <View className="bg-white rounded-xl overflow-hidden p-2 shadow">
         <Image
           source={comic.image}
-          className="w-full h-48 mb-2 rounded"
+          className="w-full h-48 mb-2"
           resizeMode="contain"
         />
         <Text className="text-lg font-gothamBold text-center">
@@ -20,12 +20,10 @@ const ComicCard = ({ comic }: { comic: Comic }) => {
 
 const ComicScreen = () => {
   return (
-    <FlatList
+    <FlatList 
       data={comics}
       keyExtractor={(item) => item.id}
       numColumns={2}
-      showsVerticalScrollIndicator={false}
-      contentContainerStyle={{ padding: 8 }}
       renderItem={({ item }) => <ComicCard comic={item} />}
     />
   );

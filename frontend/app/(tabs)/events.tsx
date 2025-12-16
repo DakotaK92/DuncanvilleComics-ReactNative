@@ -3,8 +3,9 @@ import React from 'react'
 import { View, Image, ImageBackground, Text } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import SignOutButton from '../../components/SignOutButton'
+import EventScreen from '../../components/EventsPage'
 
-const cart = () => {
+const Events = () => {
   return (
     <SafeAreaView className="flex-1 bg-transparent" edges={['top']}>
       {/* Header Section */}
@@ -29,11 +30,12 @@ const cart = () => {
             UPCOMING EVENTS
           </Text>
         </View>
-        
+
+        <EventScreen />
         
       </ImageBackground>
     </SafeAreaView>
   )
 }
 
-export default cart
+export default Events

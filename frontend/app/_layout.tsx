@@ -3,7 +3,6 @@ import { tokenCache } from "@clerk/clerk-expo/token-cache";
 import { Stack } from "expo-router";
 import "../global.css";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { StatusBar } from "expo-status-bar";
 import { useFonts } from "expo-font";
 
 const queryClient = new QueryClient();
@@ -36,7 +35,6 @@ const [fontsLoaded] = useFonts({
           <Stack.Screen name="(auth)" />
           <Stack.Screen name="(tabs)" />
         </Stack>
-        <StatusBar style="dark" />
       </QueryClientProvider>
     </ClerkProvider>
   );
