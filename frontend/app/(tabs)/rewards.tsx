@@ -4,15 +4,17 @@ import { SafeAreaView } from 'react-native-safe-area-context'
 import SignOutButton from '../../components/SignOutButton'
 import AntDesign from '@expo/vector-icons/build/AntDesign'
 
-const rewards = () => {
+import RewardsScreen from '../../components/RewardsScreen'
+
+const Rewards = () => {
   return (
     <SafeAreaView className="flex-1 bg-transparent" edges={['top']}>
       {/* Header Section */}
       <View className="flex-row justify-between items-center px-4 py-3 border-b border-gray-200">
-        <AntDesign name="menu" size={24} color="black" />
+        <View className="w-10"/>
         <Image
           source={require("../../assets/icons/logo.png")}
-          className="w-24 h-10"
+          className="w-24 h-10 items-center"
         />
         <SignOutButton />
       </View>
@@ -25,14 +27,17 @@ const rewards = () => {
       >
 
         <View className="pt-4 px-4">
-          <Text className="text-2xl font-gothamBold text-center mb-1 text-white bg-green-600 py-2 rounded">
-            TCG, TOURNAMENTS AND EVENTS
+          <Text className="text-2xl font-gothamBold text-center  text-white bg-red-600 py-2 rounded">
+            EARN & REDEEM REWARDS
           </Text>
         </View>
-    
+
+      {/*Content in Body*/}
+      <RewardsScreen />
+      
       </ImageBackground>
     </SafeAreaView>
   )
 }
 
-export default rewards
+export default Rewards

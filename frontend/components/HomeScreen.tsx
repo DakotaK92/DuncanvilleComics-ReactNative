@@ -56,6 +56,9 @@ const HomeScreen = () => {
                     <Text className="text-white font-gothamMedium text-sm">
                       {item.event}
                     </Text>
+                    <TouchableOpacity className="mt-3 bg-red-600 py-2 px-4 rounded-full w-36 items-center">
+                      <Text className="text-white font-bold">Join Now</Text>
+                    </TouchableOpacity>
                   </View>
 
                   {/* Logo */}

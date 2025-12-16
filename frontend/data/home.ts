@@ -29,7 +29,7 @@ export const messages: HomeTypes[] = [
         title: "CLAWS ARE OUT: WOLVERINE RETURNS",
         event: "STORE EVENT",
         backgroundImage: require("../assets/images/background-images/wolverine-background.png"),
-        logo: require("../assets/images/logos/wolverine-logo.png"),
+        logo: require("../assets/images/logos/wolverine-black-logo.png"),
     },
     {
         id: 3,

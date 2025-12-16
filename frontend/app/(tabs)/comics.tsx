@@ -14,13 +14,14 @@ const cart = () => {
       
       {/* Header Section */}
       <View className="flex-row justify-between items-center px-4 py-3 border-b border-gray-200">
-        <AntDesign name="menu" size={24} color="black" />
+        <View className="w-10"/>
         <Image
           source={require("../../assets/icons/logo.png")}
-          className="w-24 h-10"
+          className="w-24 h-10 items-center"
         />
         <SignOutButton />
       </View>
+
       {/* Body Section */}
         <ImageBackground
           source={require("../../assets/images/imagebackground.png")}
@@ -29,7 +30,7 @@ const cart = () => {
         >
           {/* Title */}
           <View className="pt-4 px-4">
-            <Text className="text-2xl font-gothamBold text-center mb-1 text-black bg-amber-500 py-2 rounded">
+            <Text className="text-2xl font-gothamBold text-center mb-1 text-white bg-green-700 py-2 rounded">
               BEST COMICS TO READ
             </Text>
           </View>
