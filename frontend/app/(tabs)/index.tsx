@@ -1,8 +1,7 @@
 import "../../global.css";
 
 import { SafeAreaView } from "react-native-safe-area-context";
-import { ImageBackground, View, Image, Text } from "react-native";
-import AntDesign from '@expo/vector-icons/AntDesign';
+import { ImageBackground, View, Image } from "react-native";
 
 import SignOutButton from "../../components/SignOutButton";
 import HomeScreen from "@/components/HomeScreen";
@@ -27,12 +26,6 @@ export default function Index() {
         className="flex-1"
         resizeMode="cover"
       >
-
-        <View className="pt-4 px-4">
-          <Text className="text-2xl font-gothamBold text-center  text-white bg-red-600 py-2 rounded">
-            IN STORE COMIC EVENTS
-          </Text>
-        </View>
 
       {/*Content in Body*/}
       <HomeScreen />

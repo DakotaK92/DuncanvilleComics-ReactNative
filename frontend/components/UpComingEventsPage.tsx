@@ -19,7 +19,6 @@ const EventsPage = () => {
     eventsByDate[dateKey].push(event);
   });
 
-  // Create a list of days with events
   const eventDates = Object.keys(eventsByDate);
 
   return (
@@ -27,12 +26,20 @@ const EventsPage = () => {
       data={eventDates}
       keyExtractor={(item) => item}
       contentContainerStyle={{ padding: 16 }}
+      ListHeaderComponent={() => (
+        <View className="px-2">
+          <Text className="text-2xl font-gothamBold text-center mb-4 text-white bg-blue-700 py-2 rounded">
+            UPCOMING EVENTS
+          </Text>
+        </View>
+      )}
+
       renderItem={({ item }) => {
         const dayEvents = eventsByDate[item];
         const displayDate = format(new Date(item), "EEEE, MMMM d");
 
         return (
-          <View className="mb-6">
+          <View className="mb-5">
             {/* Date Header */}
             <Text className="text-lg font-gothamBold mb-2">{displayDate}</Text>
 

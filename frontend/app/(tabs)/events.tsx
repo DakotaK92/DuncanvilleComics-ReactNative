@@ -7,6 +7,7 @@ import UpComingEventScreen from '../../components/UpComingEventsPage'
 const Events = () => {
   return (
     <SafeAreaView className="flex-1 bg-transparent" edges={['top']}>
+      
       {/* Header Section */}
       <View className="flex-row justify-between items-center px-4 py-3 border-b border-gray-200">
         <View className="w-10"/>
@@ -24,16 +25,11 @@ const Events = () => {
         resizeMode="cover"
       >
 
-        <View className="pt-4 px-4">
-          <Text className="text-2xl font-gothamBold text-center mb-1 text-white bg-blue-700 py-2 rounded">
-            UPCOMING EVENTS
-          </Text>
-        </View>
-
         {/*Content in Body*/}
         <UpComingEventScreen />
         
       </ImageBackground>
+
     </SafeAreaView>
   )
 }

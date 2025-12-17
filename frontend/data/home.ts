@@ -18,7 +18,7 @@ export const messages: HomeTypes[] = [
    {
         id: 1,
         date: daysFromNowISO(2),
-        title: "GOTHAM'S FINEST: THE CAPE & COWL COLLECTION",
+        title: "New to Duncanville Comics",
         event: "STORE EVENT",
         backgroundImage: require("../assets/images/background-images/batman-background.png"),
         logo: require("../assets/images/logos/batman-logo.png"),
@@ -26,7 +26,7 @@ export const messages: HomeTypes[] = [
     {
         id: 2,
         date: daysFromNowISO(3),
-        title: "CLAWS ARE OUT: WOLVERINE RETURNS",
+        title: "Weekly Releases",
         event: "STORE EVENT",
         backgroundImage: require("../assets/images/background-images/wolverine-background.png"),
         logo: require("../assets/images/logos/wolverine-black-logo.png"),
@@ -34,7 +34,7 @@ export const messages: HomeTypes[] = [
     {
         id: 3,
         date: daysFromNowISO(1),
-        title: "SPIDER-MAN: WEB OF SHADOWS",
+        title: "My Pull List",
         event: "STORE EVENT",
         backgroundImage: require("../assets/images/background-images/spiderman-background.png"),
         logo: require("../assets/images/logos/spiderman-logo.png"),
@@ -42,7 +42,7 @@ export const messages: HomeTypes[] = [
     {
         id: 4,
         date: daysFromNowISO(0),
-        title: "GODS AMOUNG US: SUPERMAN RISES",
+        title: "Pre-Order",
         event: "STORE EVENT",
         backgroundImage: require("../assets/images/background-images/superman-background.png"),
         logo: require("../assets/images/logos/superman-logo.png"),
@@ -50,7 +50,7 @@ export const messages: HomeTypes[] = [
     {
         id: 5,
         date: daysFromNowISO(3),
-        title: "BRIGHTEST DAY: GREEN LANTERN LEGACY",
+        title: "My Pull List",
         event: "STORE EVENT",
         backgroundImage: require("../assets/images/background-images/green-lantern-background.png"),
         logo: require("../assets/images/logos/green-lantern-logo.png"),
@@ -58,7 +58,7 @@ export const messages: HomeTypes[] = [
     {
         id: 6,
         date: daysFromNowISO(2),
-        title: "LEGACY OF A HERO: CAPTAIN AMERICA",
+        title: "Deal of the Week",
         event: "STORE EVENT",
         backgroundImage: require("../assets/images/background-images/captain-america-background.png"),
         logo: require("../assets/images/logos/captain-america-logo.png"),
@@ -66,7 +66,7 @@ export const messages: HomeTypes[] = [
     {
         id: 7,
         date: daysFromNowISO(4),
-        title: "QUEEN OF THE AMAZONS: WONDER WOMAN",
+        title: "CGC Graded Comics",
         event: "STORE EVENT",
         backgroundImage: require("../assets/images/background-images/wonderwoman-background.png"),
         logo: require("../assets/images/logos/wonder-woman-logo.png"),
@@ -74,7 +74,7 @@ export const messages: HomeTypes[] = [
     {
         id: 8,
         date: daysFromNowISO(8),
-        title: "SUIT OF ARMOR: IRONMAN INVINCIBLE",
+        title: "Newly Added Back Issues",
         event: "STORE EVENT",
         backgroundImage: require("../assets/images/background-images/ironman-background.png"),
         logo: require("../assets/images/logos/iron-man-logo.png"),
