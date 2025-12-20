@@ -1,7 +1,6 @@
 export type Award = {
   icon?: string;
   label: string;
-  color?: string;
 };
 
 export type Comic = {
@@ -17,20 +16,20 @@ export const comics: Comic[] = [
     image: require("../assets/images/comics/spiderman.jpg"),
     title: "Amazing Fantasy",
     awards: [
-      { icon: "star", label: "Top Comic", color: "yellow-400" },
+      { icon: "star", label: "Top Comic" },
     ],
   },
   {
     id: "2",
     image: require("../assets/images/comics/bone.jpg"),
     title: "Bone",
-    awards: [{ label: "Fan Favorite", color: "pink-400" }],
+    awards: [{ label: "Fan Favorite" }],
   },
   {
     id: "3",
     image: require("../assets/images/comics/dark-knight.jpg"),
     title: "The Dark Knight Returns",
-    awards: [{ label: "Classic", color: "gray-400" }],
+    awards: [{ label: "Classic" }],
   },
   {
     id: "4",
@@ -41,7 +40,7 @@ export const comics: Comic[] = [
     id: "5",
     image: require("../assets/images/comics/preacher.jpg"),
     title: "Preacher",
-    awards: [{ label: "Collector's Choice", color: "orange-400" }],
+    awards: [{ label: "Collector's Choice" }],
   },
   {
     id: "6",
@@ -53,7 +52,7 @@ export const comics: Comic[] = [
     image: require("../assets/images/comics/watchmen.jpg"),
     title: "Watchmen",
     awards: [
-      { icon: "ribbon", label: "Award Winner", color: "purple-400" },
+      { icon: "ribbon", label: "Award Winner" },
     ],
   },
   {

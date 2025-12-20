@@ -5,13 +5,16 @@ import {
   Image,
   ImageBackground,
   FlatList,
-  TouchableOpacity,
+  Pressable,
 } from "react-native";
 import { differenceInMinutes } from "date-fns";
+import { useRouter } from "expo-router";
+
 import { messages, HomeTypes } from "../data/home";
-import { formatTimeRemaining } from "@/utils/formatters";
 
 const HomeScreen = () => {
+  const router = useRouter();
+
   return (
     <FlatList<HomeTypes>
       data={messages}
@@ -19,9 +22,9 @@ const HomeScreen = () => {
       className="m-6"
       showsVerticalScrollIndicator={false}
 
-      // 🔹 Header at the top
+      /* 🔹 Header at the top */
       ListHeaderComponent={() => (
-        <TouchableOpacity activeOpacity={0.9}>
+        <Pressable activeOpacity={0.9}>
           <View className="mb-5 rounded-xl overflow-hidden bg-neutral-900">
             {/* IMAGE */}
             <Image
@@ -34,7 +37,7 @@ const HomeScreen = () => {
             <View className="p-4">
               <Text className="text-white font-gothamMedium text-xl mb-1">
                 Duncanville Bookstore
-                Comics, Toys & Collectibles
+                {"\n"}Comics, Toys & Collectibles
               </Text>
 
               <Text className="text-gray-300 text-sm font-gothamLight mb-3">
@@ -45,7 +48,7 @@ const HomeScreen = () => {
                 🕒 Open Daily • 10:00 AM – 7:00 PM
               </Text>
 
-              <Text className="text-gray-300 text-sm font-gothamLight mb-4">
+              <Text className="text-gray-300 text-sm font-gothamLight mb-3">
                 📞 (123) 456-7890
               </Text>
 
@@ -61,65 +64,67 @@ const HomeScreen = () => {
                 <View className="flex-row space-x-4">
                   <Image
                     source={require("../assets/icons/instagram.png")}
-                    className="w-6 h-6 p-1"
+                    className="w-6 h-6"
                   />
                   <Image
                     source={require("../assets/icons/facebook.png")}
-                    className="w-6 h-6 p-1"
+                    className="w-6 h-6"
                   />
                   <Image
                     source={require("../assets/icons/x.png")}
-                    className="w-6 h-6 p-1"
+                    className="w-6 h-6"
                   />
                 </View>
               </View>
             </View>
           </View>
-        </TouchableOpacity>
+        </Pressable>
       )}
 
-      // 🔹 Each message item
+      /* 🔹 Each list item */
       renderItem={({ item }) => {
         const minutesRemaining = differenceInMinutes(
           new Date(item.date),
           new Date()
         );
 
-        const isEndingSoon = minutesRemaining > 0 && minutesRemaining <= 60;
-
         return (
-          <ImageBackground
-            source={item.backgroundImage}
-            className="mb-4 rounded-lg overflow-hidden"
-            resizeMode="cover"
+          <Pressable
+            onPress={() =>
+              router.push({
+                pathname: "/category",
+                params: {
+                  title: item.title,
+                  type: item.type,
+                },
+              })
+            }
+            style={({ pressed }) => [
+              { opacity: pressed ? 0.92 : 1 },
+            ]}
           >
-            <View className="p-4 flex-row items-center justify-between">
-              {/* LEFT: Text and Ending Soon badge */}
-              <View className="mb-4 rounded-xl p-4 flex-1">
-                <Text
-                  className={`self-start text-white text-sm font-bold rounded-full px-3 py-1 mb-2 ${
-                    isEndingSoon ? "bg-red-600" : "bg-black/20"
-                  }`}
-                >
-                  {isEndingSoon
-                    ? `ENDING SOON • ${formatTimeRemaining(item.date)}`
-                    : `EVENT ENDS: ${formatTimeRemaining(item.date)}`}
-                </Text>
+            <ImageBackground
+              source={item.backgroundImage}
+              className="mb-4 rounded-lg overflow-hidden"
+              resizeMode="cover"
+            >
+              <View className="p-4 flex-row items-center justify-between">
+                {/* LEFT */}
+                <View className="rounded-xl p-4 flex-1">
+                  <Text className="text-white font-gothamMedium text-xl mb-1">
+                    {item.title}
+                  </Text>
+                </View>
 
-                <Text className="text-white font-gothamMedium text-xl mb-1">
-                  {item.title}
-                </Text>
-                <Text className="text-white text-sm">{item.event}</Text>
+                {/* RIGHT */}
+                <Image
+                  source={item.logo}
+                  className="w-16 h-16"
+                  resizeMode="contain"
+                />
               </View>
-
-              {/* RIGHT: Logo */}
-              <Image
-                source={item.logo}
-                className="w-16 h-16"
-                resizeMode="contain"
-              />
-            </View>
-          </ImageBackground>
+            </ImageBackground>
+          </Pressable>
         );
       }}
     />
