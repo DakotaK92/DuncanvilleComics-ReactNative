@@ -1,6 +1,7 @@
 import FontAwesome5 from '@expo/vector-icons/FontAwesome5';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import Entypo from '@expo/vector-icons/Entypo';
+import Ionicons from '@expo/vector-icons/Ionicons';
 import { Tabs } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -49,6 +50,13 @@ const TabsLayout = () => {
                 options={{
                     title: "",
                     tabBarIcon: ({ color, size}) => <Entypo name="book" size={size} color={color} />
+                }}
+            />
+            <Tabs.Screen
+                name="category"
+                options={{
+                    title: "",
+                    tabBarIcon: ({ color, size}) => <Ionicons name="layers" size={size} color={color} />
                 }}
             />
         </Tabs>
