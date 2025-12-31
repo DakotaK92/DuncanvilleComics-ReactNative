@@ -5,9 +5,7 @@ import { SafeAreaView } from 'react-native-safe-area-context'
 import SignOutButton from '../../components/SignOutButton'
 import ComicScreen from '../../components/ComicScreen'
 
-
-
-const cart = () => {
+const Comics = () => {
   return (
     <SafeAreaView className="flex-1 bg-transparent" edges={['top']}>
       
@@ -37,4 +35,4 @@ const cart = () => {
   )
 }
 
-export default cart
+export default Comics

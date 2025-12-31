@@ -1,9 +1,8 @@
 import React from 'react'
 import { Text, View, Image, ImageBackground } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
-import SignOutButton from '../../components/SignOutButton'
-import AntDesign from '@expo/vector-icons/build/AntDesign'
 
+import SignOutButton from '../../components/SignOutButton'
 import RewardsScreen from '../../components/RewardsScreen'
 
 const Rewards = () => {
