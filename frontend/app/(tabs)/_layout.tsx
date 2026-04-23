@@ -2,6 +2,7 @@ import FontAwesome5 from '@expo/vector-icons/FontAwesome5';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import Entypo from '@expo/vector-icons/Entypo';
 import Ionicons from '@expo/vector-icons/Ionicons';
+import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import { Tabs } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -57,6 +58,13 @@ const TabsLayout = () => {
                 options={{
                     title: "",
                     tabBarIcon: ({ color, size}) => <Ionicons name="layers" size={size} color={color} />
+                }}
+            />
+            <Tabs.Screen
+                name="admin"
+                options={{
+                    title: "",
+                    tabBarIcon: ({ color, size}) => <MaterialIcons name="admin-panel-settings" size={size} color={color} />
                 }}
             />
         </Tabs>

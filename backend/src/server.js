@@ -3,8 +3,14 @@ import cors from 'cors';
 import { clerkMiddleware } from '@clerk/express';
 
 import { ENV } from './config/env.js';
-import { connectDB } from './config/db.js';
+import { connectDB, databaseReady } from './config/db.js';
 import { arcjetMiddleware } from './middleware/arcjet.middleware.js';
+import { seedDefaults } from './utils/seed.js';
+import usersRoutes from './routes/users.routes.js';
+import rewardsRoutes from './routes/rewards.routes.js';
+import pullListRoutes from './routes/pullList.routes.js';
+import weeklyReleasesRoutes from './routes/weeklyReleases.routes.js';
+import adminRoutes from './routes/admin.routes.js';
 
 const app = express();
 
@@ -12,9 +18,30 @@ app.use(cors());
 app.use(express.json());
 
 app.use(arcjetMiddleware);
-app.use(clerkMiddleware({ apiKey: ENV.CLERK_API_KEY }));
+app.use(clerkMiddleware({ secretKey: ENV.CLERK_SECRET_KEY }));
 
-app.get("/", (req, res) => res.send("Server is running..."));
+app.get("/", (_req, res) => res.send("Server is running..."));
+app.get("/api/health", (_req, res) =>
+  res.json({ ok: true, databaseReady: databaseReady() })
+);
+
+app.use("/api", (req, res, next) => {
+  if (!databaseReady() && req.path !== "/health") {
+    return res.status(503).json({
+      error: "Database unavailable",
+      message:
+        "The backend is up, but MongoDB is not connected yet. Check your backend terminal for the database error.",
+    });
+  }
+
+  next();
+});
+
+app.use("/api/users", usersRoutes);
+app.use("/api/rewards", rewardsRoutes);
+app.use("/api/pull-list", pullListRoutes);
+app.use("/api/weekly-releases", weeklyReleasesRoutes);
+app.use("/api/admin", adminRoutes);
 
 // error handling middleware
 app.use((err, req, res, next) => {
@@ -23,16 +50,15 @@ app.use((err, req, res, next) => {
 });
 
 const startServer = async () => {
+  app.listen(ENV.PORT, () =>
+    console.log("Server is up and running on PORT:", ENV.PORT)
+  );
+
   try {
     await connectDB();
-
-    // listen for local development
-    if (ENV.NODE_ENV !== "production") {
-      app.listen(ENV.PORT, () => console.log("Server is up and running on PORT:", ENV.PORT));
-    }
+    await seedDefaults();
   } catch (error) {
-    console.error("Failed to start server:", error.message);
-    process.exit(1);
+    console.error("Backend started without database access:", error.message);
   }
 };
 

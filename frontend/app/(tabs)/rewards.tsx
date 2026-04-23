@@ -26,7 +26,7 @@ const Rewards = () => {
       >
 
         <View className="pt-4 px-4">
-          <Text className="text-2xl font-gothamBold text-center  text-white bg-red-600 py-2 rounded">
+          <Text className="h-12 rounded bg-red-600 px-4 text-center font-gothamBold text-xl leading-[48px] text-white">
             EARN & REDEEM REWARDS
           </Text>
         </View>

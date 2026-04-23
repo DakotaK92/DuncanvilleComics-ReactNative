@@ -3,19 +3,14 @@ import {
   Text,
   View,
   Image,
-  ImageBackground,
   FlatList,
   Pressable,
   Linking,
 } from "react-native";
-import { differenceInMinutes } from "date-fns";
-import { useRouter } from "expo-router";
 
 import { messages, HomeTypes } from "../data/home";
 
 const HomeScreen = () => {
-  const router = useRouter();
-
   const openLink = async (url: string) => {
     const supported = await Linking.canOpenURL(url)
     if (supported) {
@@ -134,46 +129,6 @@ const HomeScreen = () => {
           </View>
         </Pressable>
       )}
-
-      /* Each list item */
-      renderItem={({ item }) => {
-        const minutesRemaining = differenceInMinutes(
-          new Date(item.date),
-          new Date()
-        );
-
-        return (
-          <Pressable
-            onPress={() =>
-              router.push({
-                pathname: "/category",
-                params: {
-                  title: item.title,
-                  type: item.type,
-                },
-              })
-            }
-            style={({ pressed }) => [
-              { opacity: pressed ? 0.92 : 1 },
-            ]}
-          >
-            <ImageBackground
-              source={item.backgroundImage}
-              className="mb-4 rounded-lg overflow-hidden"
-              resizeMode="cover"
-              imageStyle={{ opacity: 0.8 }}
-            >
-              <View className="p-4 flex-row items-center justify-between">
-                <View className="rounded-xl p-4 flex-1">
-                  <Text className="text-white font-gothamMedium text-xl mb-1">
-                    {item.title}
-                  </Text>
-                </View>
-              </View>
-            </ImageBackground>
-          </Pressable>
-        );
-      }}
     />
   );
 };

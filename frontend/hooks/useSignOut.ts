@@ -1,5 +1,6 @@
 import { useClerk } from "@clerk/clerk-expo";
 import { Alert } from "react-native";
+import { router } from "expo-router";
 
 export const useSignOut = () => {
   const { signOut } = useClerk();
@@ -10,7 +11,10 @@ export const useSignOut = () => {
       {
         text: "Logout",
         style: "destructive",
-        onPress: () => signOut(),
+        onPress: async () => {
+          await signOut();
+          router.replace("/(auth)");
+        },
       },
     ]);
   };

@@ -22,15 +22,8 @@ const ComicScreen = () => {
       data={comics}
       keyExtractor={(item) => item.id}
       numColumns={2}
-      ListHeaderComponent={() => (
-        <View className="pt-4 px-4">
-          <Text className="text-2xl font-gothamBold text-center mb-4 text-white bg-green-700 py-2 rounded">
-            BEST COMICS TO READ
-          </Text>
-        </View>
-      )}
       renderItem={({ item }) => <ComicCard comic={item} />}
-      contentContainerStyle={{ paddingBottom: 16 }}
+      contentContainerStyle={{ paddingHorizontal: 8, paddingTop: 12, paddingBottom: 16 }}
       columnWrapperStyle={{ justifyContent: "space-between" }}
     />
   );

@@ -6,7 +6,6 @@ export default function CategoryLayout() {
       screenOptions={{
         headerShown: true,
         animation: "slide_from_right",
-        headerShown: true,
         headerBackTitleVisible: false,
       }}
     />
