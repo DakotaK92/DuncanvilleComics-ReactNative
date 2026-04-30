@@ -2,7 +2,7 @@
 
 This is an Expo React Native mobile app concept for Duncanville Comics, Toys and Collectibles. It is not an official app for the business.
 
-![Demo App](/frontend/assets/Mockup.png)
+![Demo App](/frontend/assets/github-banner.png)
 
 ## What the app can do
 
