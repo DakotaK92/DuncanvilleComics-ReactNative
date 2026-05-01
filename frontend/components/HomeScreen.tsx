@@ -1,4 +1,3 @@
-import React from "react";
 import {
   Image,
   ImageBackground,
@@ -138,8 +137,8 @@ const HomeScreen = () => {
       </ImageBackground>
 
       <View className="mt-5">
-        <Text className="font-gothamBold text-xl text-white">Quick Start</Text>
-        <Text className="mt-1 font-gothamLight text-sm text-neutral-300">
+        <Text className="font-gothamBold text-xl text-white rounded-full bg-red-600 px-4">Quick Start</Text>
+        <Text className="mt-1 font-gothamLight text-sm text-black">
           Jump into the parts of the app you will probably use first.
         </Text>
       </View>
@@ -151,13 +150,13 @@ const HomeScreen = () => {
             onPress={() =>
               item.type ? openCategory(item.type) : router.push(item.route as "/rewards")
             }
-            className="min-h-[126px] flex-1 rounded-xl bg-white/10 p-4"
+            className="min-h-[126px] flex-1 rounded-xl bg-red-600 p-4"
           >
-            <View className="h-10 w-10 items-center justify-center rounded-full bg-red-600">
+            <View className="h-10 w-10 items-center justify-center">
               <Ionicons name={item.icon as never} size={18} color="#fff" />
             </View>
             <Text className="mt-4 font-gothamBold text-base text-white">{item.label}</Text>
-            <Text className="mt-1 font-gothamLight text-xs leading-4 text-neutral-300">
+            <Text className="mt-1 font-gothamLight text-xs leading-4 text-white">
               {item.subtitle}
             </Text>
           </Pressable>
@@ -165,8 +164,8 @@ const HomeScreen = () => {
       </View>
 
       <View className="mt-6">
-        <Text className="font-gothamBold text-xl text-white">Spotlight</Text>
-        <Text className="mt-1 font-gothamLight text-sm text-neutral-300">
+        <Text className="font-gothamBold text-xl text-white rounded-full bg-red-600 px-4">Spotlight</Text>
+        <Text className="mt-1 font-gothamLight text-sm text-black">
           A few fast lanes into the books and offers your regulars care about.
         </Text>
       </View>
@@ -192,7 +191,6 @@ const HomeScreen = () => {
               </View>
 
               <View>
-                <Image source={item.logo} className="h-16 w-32" resizeMode="contain" />
                 <Text className="mt-3 font-gothamBold text-2xl text-white">{item.title}</Text>
               </View>
             </ImageBackground>
@@ -201,12 +199,12 @@ const HomeScreen = () => {
       </ScrollView>
 
       <View className="mt-6">
-        <Text className="font-gothamBold text-xl text-white">Inside the Shop</Text>
+        <Text className="font-gothamBold text-xl text-white rounded-full bg-red-600 px-4">Inside the Shop</Text>
       </View>
 
       <View className="mt-4 flex-row flex-wrap gap-3">
         {storeHighlights.map((item) => (
-          <View key={item.label} className="min-w-[48%] flex-1 rounded-xl bg-black/35 px-4 py-4">
+          <View key={item.label} className="min-w-[48%] flex-1 rounded-xl bg-red-600 px-4 py-4">
             <Text className="font-gothamLight text-xs uppercase tracking-[1px] text-neutral-300">
               {item.label}
             </Text>
@@ -216,8 +214,8 @@ const HomeScreen = () => {
       </View>
 
       <View className="mt-6 rounded-xl bg-white/10 p-4">
-        <Text className="font-gothamBold text-lg text-white">Visit or Connect</Text>
-        <Text className="mt-2 font-gothamLight text-sm leading-5 text-neutral-300">
+        <Text className="font-gothamBold text-lg text-white rounded-full bg-red-600 px-4">Visit or Connect</Text>
+        <Text className="mt-2 font-gothamLight text-sm leading-5 text-black">
           Stop by the shop, give the team a call, or follow along for restocks and weekly drops.
         </Text>
 
@@ -248,7 +246,7 @@ const HomeScreen = () => {
             <Pressable
               key={item.label}
               onPress={() => openLink(item.url)}
-              className="h-11 w-11 items-center justify-center rounded-full bg-white/10"
+              className="h-11 w-11 items-center justify-center rounded-full bg-red-600"
             >
               <Image source={item.icon} className="h-5 w-5" resizeMode="contain" />
             </Pressable>

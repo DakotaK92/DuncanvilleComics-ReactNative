@@ -3,12 +3,16 @@ import FontAwesome from '@expo/vector-icons/FontAwesome';
 import Entypo from '@expo/vector-icons/Entypo';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
+import { useUser } from '@clerk/clerk-expo';
 import { Tabs } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { isPrimaryAdminEmail } from "../../utils/admin";
 
 
 const TabsLayout = () => {
     const insets = useSafeAreaInsets();
+    const { user } = useUser();
+    const canSeeAdminTab = isPrimaryAdminEmail(user?.primaryEmailAddress?.emailAddress);
 
     return (
         <Tabs
@@ -64,6 +68,7 @@ const TabsLayout = () => {
                 name="admin"
                 options={{
                     title: "",
+                    href: canSeeAdminTab ? undefined : null,
                     tabBarIcon: ({ color, size}) => <MaterialIcons name="admin-panel-settings" size={size} color={color} />
                 }}
             />
