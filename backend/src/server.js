@@ -9,6 +9,7 @@ import { seedDefaults } from './utils/seed.js';
 import usersRoutes from './routes/users.routes.js';
 import rewardsRoutes from './routes/rewards.routes.js';
 import pullListRoutes from './routes/pullList.routes.js';
+import wishListRoutes from './routes/wishList.routes.js';
 import weeklyReleasesRoutes from './routes/weeklyReleases.routes.js';
 import adminRoutes from './routes/admin.routes.js';
 
@@ -40,6 +41,7 @@ app.use("/api", (req, res, next) => {
 app.use("/api/users", usersRoutes);
 app.use("/api/rewards", rewardsRoutes);
 app.use("/api/pull-list", pullListRoutes);
+app.use("/api/wish-list", wishListRoutes);
 app.use("/api/weekly-releases", weeklyReleasesRoutes);
 app.use("/api/admin", adminRoutes);
 
