@@ -5,6 +5,12 @@ dotenv.config();
 export const ENV = {
   PORT: process.env.PORT || 3000,
   NODE_ENV: process.env.NODE_ENV || "development",
+  APP_VERSION: process.env.npm_package_version || "unknown",
+  DEPLOY_COMMIT:
+    process.env.RENDER_GIT_COMMIT ||
+    process.env.COMMIT_SHA ||
+    process.env.GIT_COMMIT ||
+    "unknown",
   MONGO_URI: process.env.MONGO_URI || "",
   CLERK_PUBLISHABLE_KEY: process.env.CLERK_PUBLISHABLE_KEY || "",
   CLERK_SECRET_KEY: process.env.CLERK_SECRET_KEY || "",

@@ -12,6 +12,7 @@ import pullListRoutes from './routes/pullList.routes.js';
 import wishListRoutes from './routes/wishList.routes.js';
 import weeklyReleasesRoutes from './routes/weeklyReleases.routes.js';
 import adminRoutes from './routes/admin.routes.js';
+import { canSendStoreEmail } from './utils/resend.js';
 
 const app = express();
 
@@ -23,7 +24,14 @@ app.use(clerkMiddleware({ secretKey: ENV.CLERK_SECRET_KEY }));
 
 app.get("/", (_req, res) => res.send("Server is running..."));
 app.get("/api/health", (_req, res) =>
-  res.json({ ok: true, databaseReady: databaseReady() })
+  res.json({
+    ok: true,
+    databaseReady: databaseReady(),
+    version: ENV.APP_VERSION,
+    deployCommit: ENV.DEPLOY_COMMIT,
+    emailStoreRouteEnabled: true,
+    resendConfigured: canSendStoreEmail(),
+  })
 );
 
 app.use("/api", (req, res, next) => {
