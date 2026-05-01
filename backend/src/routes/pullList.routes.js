@@ -153,12 +153,21 @@ router.post("/email-store", protectRoute, async (req, res) => {
 
   const customerName =
     `${user.firstName || ""} ${user.lastName || ""}`.trim() || user.email || "Unknown customer";
+  const readyItemsCount = itemsToSend.filter((item) => item.hasNewIssue).length;
   const subject =
     filter === "ready"
-      ? `${customerName} - weekly pull list request`
-      : `${customerName} - pull list request`;
+      ? `Duncanville Comics Pull List: ${customerName} (${itemsToSend.length} ready this week)`
+      : `Duncanville Comics Pull List: ${customerName} (${itemsToSend.length} titles)`;
 
   const textLines = [
+    "Duncanville Comics pull list request",
+    "",
+    `Customer: ${customerName}`,
+    `Email: ${user.email || "No email on file"}`,
+    `View: ${filter === "ready" ? "Ready This Week" : "Full Pull List"}`,
+    `Titles included: ${itemsToSend.length}`,
+    `Ready this week: ${readyItemsCount}`,
+    "",
     "Please pull these books for in-store pickup:",
     "",
     ...itemsToSend.map((item) => {
@@ -168,8 +177,7 @@ router.post("/email-store", protectRoute, async (req, res) => {
       return `- ${item.title}${issueText} (${item.publisher})${readyTag}${noteText}`;
     }),
     "",
-    `Customer: ${customerName}`,
-    `Email: ${user.email || "No email on file"}`,
+    "Sent from the Duncanville Comics app.",
   ];
 
   const htmlItems = itemsToSend
@@ -193,11 +201,54 @@ router.post("/email-store", protectRoute, async (req, res) => {
     replyTo: user.email || undefined,
     text: textLines.join("\n"),
     html: `
-      <div>
-        <p>Please pull these books for in-store pickup:</p>
-        <ul>${htmlItems}</ul>
-        <p><strong>Customer:</strong> ${escapeHtml(customerName)}<br />
-        <strong>Email:</strong> ${escapeHtml(user.email || "No email on file")}</p>
+      <div style="margin:0; background-color:#111111; padding:24px; font-family:Arial, Helvetica, sans-serif; color:#111111;">
+        <div style="margin:0 auto; max-width:640px; overflow:hidden; border-radius:20px; background-color:#ffffff;">
+          <div style="background-color:#dc2626; padding:24px 28px; color:#ffffff;">
+            <div style="font-size:12px; letter-spacing:1.4px; text-transform:uppercase; opacity:0.9;">Duncanville Comics</div>
+            <h1 style="margin:8px 0 0; font-size:28px; line-height:1.2;">Pull List Request</h1>
+            <p style="margin:10px 0 0; font-size:14px; line-height:1.6; color:#fee2e2;">
+              A customer sent their ${
+                filter === "ready" ? "ready-this-week pull list" : "full pull list"
+              } for in-store prep.
+            </p>
+          </div>
+
+          <div style="padding:24px 28px;">
+            <div style="display:grid; grid-template-columns:repeat(3, minmax(0, 1fr)); gap:12px; margin-bottom:24px;">
+              <div style="border-radius:14px; background-color:#f5f5f5; padding:16px;">
+                <div style="font-size:12px; text-transform:uppercase; letter-spacing:1px; color:#737373;">Customer</div>
+                <div style="margin-top:6px; font-size:16px; font-weight:700; color:#111111;">${escapeHtml(customerName)}</div>
+              </div>
+              <div style="border-radius:14px; background-color:#f5f5f5; padding:16px;">
+                <div style="font-size:12px; text-transform:uppercase; letter-spacing:1px; color:#737373;">Titles</div>
+                <div style="margin-top:6px; font-size:16px; font-weight:700; color:#111111;">${itemsToSend.length}</div>
+              </div>
+              <div style="border-radius:14px; background-color:#f5f5f5; padding:16px;">
+                <div style="font-size:12px; text-transform:uppercase; letter-spacing:1px; color:#737373;">Ready This Week</div>
+                <div style="margin-top:6px; font-size:16px; font-weight:700; color:#111111;">${readyItemsCount}</div>
+              </div>
+            </div>
+
+            <div style="margin-bottom:20px; border-radius:16px; border:1px solid #e5e5e5; padding:18px 20px;">
+              <div style="font-size:13px; line-height:1.7; color:#404040;">
+                <div><strong>Customer:</strong> ${escapeHtml(customerName)}</div>
+                <div><strong>Email:</strong> ${escapeHtml(user.email || "No email on file")}</div>
+                <div><strong>View:</strong> ${
+                  filter === "ready" ? "Ready This Week" : "Full Pull List"
+                }</div>
+              </div>
+            </div>
+
+            <h2 style="margin:0 0 12px; font-size:18px; color:#111111;">Requested Books</h2>
+            <ul style="margin:0; padding-left:20px; color:#262626; line-height:1.8;">
+              ${htmlItems}
+            </ul>
+          </div>
+
+          <div style="border-top:1px solid #e5e5e5; background-color:#fafafa; padding:18px 28px; font-size:12px; line-height:1.6; color:#737373;">
+            Sent from the Duncanville Comics app.
+          </div>
+        </div>
       </div>
     `,
   });

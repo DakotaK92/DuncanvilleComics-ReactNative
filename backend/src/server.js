@@ -31,6 +31,11 @@ app.get("/api/health", (_req, res) =>
     deployCommit: ENV.DEPLOY_COMMIT,
     emailStoreRouteEnabled: true,
     resendConfigured: canSendStoreEmail(),
+    resendConfig: {
+      hasApiKey: Boolean(ENV.RESEND_API_KEY),
+      hasFromEmail: Boolean(ENV.RESEND_FROM_EMAIL),
+      hasStoreEmail: Boolean(ENV.STORE_EMAIL),
+    },
   })
 );
 
