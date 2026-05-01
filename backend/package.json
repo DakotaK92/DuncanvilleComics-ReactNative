@@ -19,7 +19,8 @@
     "install": "^0.13.0",
     "mongoose": "^9.0.1",
     "multer": "^2.0.2",
-    "npm": "^11.7.0"
+    "npm": "^11.7.0",
+    "resend": "^6.12.2"
   },
   "keywords": [],
   "author": "",

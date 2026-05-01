@@ -94,6 +94,8 @@ export const pullListApi = {
     payload: { title: string; publisher: string; seriesKey: string; notes?: string }
   ) => api.post("/pull-list", payload),
   remove: (api: AxiosInstance, id: string) => api.delete(`/pull-list/${id}`),
+  emailStore: (api: AxiosInstance, payload: { filter: "all" | "ready" }) =>
+    api.post("/pull-list/email-store", payload),
 };
 
 export const wishListApi = {

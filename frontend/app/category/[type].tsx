@@ -5,6 +5,7 @@ import {
   ActivityIndicator,
   TouchableOpacity,
   ImageBackground,
+  Alert,
 } from "react-native";
 import { useEffect, useMemo, useState } from "react";
 import { useLocalSearchParams, Stack, router } from "expo-router";
@@ -19,6 +20,7 @@ import { preOrders } from "@/data/preOrders";
 import { gradedComics } from "@/data/gradedComics";
 import { backIssues } from "@/data/backIssues";
 import {
+  getApiErrorMessage,
   pullListApi,
   useApiClient,
   weeklyReleasesApi,
@@ -105,6 +107,16 @@ export default function CategoryScreen() {
     },
   });
 
+  const emailStoreMutation = useMutation({
+    mutationFn: (filter: PullListFilter) => pullListApi.emailStore(api, { filter }),
+    onSuccess: () => {
+      setToastMessage("Pull list emailed to the store.");
+    },
+    onError: (error) => {
+      Alert.alert("Email failed", getApiErrorMessage(error));
+    },
+  });
+
   const addToWishListMutation = useMutation({
     mutationFn: (comic: {
       title: string;
@@ -188,6 +200,23 @@ export default function CategoryScreen() {
     () => new Set(wishListItems.map((item) => item.seriesKey)),
     [wishListItems]
   );
+
+  const handleEmailStore = () => {
+    if (type !== "pull-list" || pullListItems.length === 0) {
+      return;
+    }
+
+    const itemsToSend = pullListItems.filter((item) =>
+      pullListFilter === "ready" ? item.hasNewIssue : true
+    );
+
+    if (itemsToSend.length === 0) {
+      Alert.alert("Nothing to send", "There are no pull-list books in this view yet.");
+      return;
+    }
+
+    emailStoreMutation.mutate(pullListFilter);
+  };
 
   return (
     <>
@@ -348,6 +377,23 @@ export default function CategoryScreen() {
                         onPress={() => setPullListFilter("ready")}
                       />
                     </View>
+
+                    <TouchableOpacity
+                      onPress={handleEmailStore}
+                      disabled={emailStoreMutation.isPending}
+                      className={`mt-4 flex-row items-center justify-center rounded-xl px-4 py-3 ${
+                        emailStoreMutation.isPending ? "bg-red-500/70" : "bg-red-600"
+                      }`}
+                    >
+                      <Ionicons name="mail" size={18} color="#ffffff" />
+                      <Text className="ml-2 font-gothamMedium text-sm text-white">
+                        {emailStoreMutation.isPending
+                          ? "Sending..."
+                          : pullListFilter === "ready"
+                            ? "Email store this week's pull"
+                            : "Email store my pull list"}
+                      </Text>
+                    </TouchableOpacity>
                   </>
                 ) : null}
               </View>
