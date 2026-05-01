@@ -19,6 +19,9 @@ export const API_BASE_URL =
   getExpoHostUrl() ||
   "http://localhost:3000/api";
 
+export const API_REQUEST_TIMEOUT_MS = 20000;
+export const BACKEND_WAKE_TIMEOUT_MS = 65000;
+
 export const getApiErrorMessage = (error: unknown) => {
   if (axios.isAxiosError(error)) {
     const axiosError = error as AxiosError<{ error?: string; message?: string }>;
@@ -48,7 +51,7 @@ export const getApiErrorMessage = (error: unknown) => {
 export const createApiClient = (
   getToken: () => Promise<string | null>
 ): AxiosInstance => {
-  const api = axios.create({ baseURL: API_BASE_URL, timeout: 10000 });
+  const api = axios.create({ baseURL: API_BASE_URL, timeout: API_REQUEST_TIMEOUT_MS });
 
   api.interceptors.request.use(async (config) => {
     const token = await getToken();
@@ -91,6 +94,22 @@ export const pullListApi = {
     payload: { title: string; publisher: string; seriesKey: string; notes?: string }
   ) => api.post("/pull-list", payload),
   remove: (api: AxiosInstance, id: string) => api.delete(`/pull-list/${id}`),
+};
+
+export const wishListApi = {
+  getAll: (api: AxiosInstance) => api.get("/wish-list"),
+  add: (
+    api: AxiosInstance,
+    payload: {
+      title: string;
+      issue: number;
+      publisher: string;
+      price: number;
+      seriesKey: string;
+      notes?: string;
+    }
+  ) => api.post("/wish-list", payload),
+  remove: (api: AxiosInstance, id: string) => api.delete(`/wish-list/${id}`),
 };
 
 export const adminApi = {
