@@ -1,15 +1,17 @@
 import { useQuery } from "@tanstack/react-query";
 import { useAuth, useUser } from "@clerk/clerk-expo";
 import { adminApi, getApiErrorMessage, useApiClient } from "../utils/api";
+import { isPrimaryAdminEmail } from "../utils/admin";
 
 export const useAdminAccess = () => {
   const { isSignedIn } = useAuth();
   const { user } = useUser();
   const api = useApiClient();
+  const isExpectedAdminEmail = isPrimaryAdminEmail(user?.primaryEmailAddress?.emailAddress);
 
   const query = useQuery({
     queryKey: ["admin-access", user?.id],
-    enabled: Boolean(isSignedIn && user),
+    enabled: Boolean(isSignedIn && user && isExpectedAdminEmail),
     retry: false,
     queryFn: async () => {
       await adminApi.getOverview(api);
@@ -22,7 +24,7 @@ export const useAdminAccess = () => {
 
   return {
     ...query,
-    isAdmin: query.isSuccess,
+    isAdmin: isExpectedAdminEmail && query.isSuccess,
     isForbidden,
     errorMessage,
   };

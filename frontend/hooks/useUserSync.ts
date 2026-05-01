@@ -2,7 +2,13 @@ import { useEffect, useRef } from "react";
 import axios from "axios";
 import { Alert } from "react-native";
 import { useAuth, useUser } from "@clerk/clerk-expo";
-import { getApiErrorMessage, useApiClient, userApi } from "../utils/api";
+import {
+  API_BASE_URL,
+  BACKEND_WAKE_TIMEOUT_MS,
+  getApiErrorMessage,
+  useApiClient,
+  userApi,
+} from "../utils/api";
 
 const wait = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
@@ -12,6 +18,7 @@ export const useUserSync = () => {
   const api = useApiClient();
   const syncedUserIdRef = useRef<string | null>(null);
   const syncingUserIdRef = useRef<string | null>(null);
+  const backendWarmedRef = useRef(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -28,6 +35,17 @@ export const useUserSync = () => {
       syncingUserIdRef.current = user.id;
 
       try {
+        if (!backendWarmedRef.current && API_BASE_URL.includes(".onrender.com")) {
+          try {
+            await axios.get(`${API_BASE_URL}/health`, {
+              timeout: BACKEND_WAKE_TIMEOUT_MS,
+            });
+            backendWarmedRef.current = true;
+          } catch {
+            // Let the real sync call report the issue if the backend still doesn't wake up.
+          }
+        }
+
         for (let attempt = 0; attempt < 6; attempt += 1) {
           const token = await getToken();
 

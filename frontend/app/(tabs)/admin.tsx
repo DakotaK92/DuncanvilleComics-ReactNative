@@ -1,13 +1,24 @@
-import React from "react";
+import { useEffect } from "react";
 import { View, Image, ImageBackground, Text } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { router } from "expo-router";
 
 import SignOutButton from "../../components/SignOutButton";
 import AdminScreen from "../../components/AdminScreen";
 import { useAdminAccess } from "../../hooks/useAdminAccess";
 
 const Admin = () => {
-  const { isAdmin } = useAdminAccess();
+  const { isAdmin, isLoading } = useAdminAccess();
+
+  useEffect(() => {
+    if (!isLoading && !isAdmin) {
+      router.replace("/(tabs)");
+    }
+  }, [isAdmin, isLoading]);
+
+  if (!isAdmin) {
+    return null;
+  }
 
   return (
     <SafeAreaView className="flex-1 bg-transparent" edges={["top"]}>
