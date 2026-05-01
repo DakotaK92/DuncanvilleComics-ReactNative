@@ -65,6 +65,8 @@ export default function AdminScreen() {
   const [customerSearch, setCustomerSearch] = useState("");
   const [titleSearch, setTitleSearch] = useState("");
   const [rewardFilter, setRewardFilter] = useState<RewardFilter>("all");
+  const [adjustmentAmount, setAdjustmentAmount] = useState("");
+  const [adjustmentNote, setAdjustmentNote] = useState("");
 
   const overviewQuery = useQuery({
     queryKey: ["admin-overview"],
@@ -94,6 +96,12 @@ export default function AdminScreen() {
   const userPullListQuery = useQuery({
     queryKey: ["admin-user-pull-list", selectedUserId],
     queryFn: async () => (await adminApi.getUserPullList(api, selectedUserId!)).data,
+    enabled: Boolean(selectedUserId),
+  });
+
+  const rewardActivityQuery = useQuery({
+    queryKey: ["admin-user-reward-activity", selectedUserId],
+    queryFn: async () => (await adminApi.getUserRewardActivity(api, selectedUserId!)).data,
     enabled: Boolean(selectedUserId),
   });
 
@@ -172,6 +180,29 @@ export default function AdminScreen() {
     onError: (error) => setNotice(getApiErrorMessage(error)),
   });
 
+  const rewardAdjustmentMutation = useMutation({
+    mutationFn: async () => {
+      if (!selectedUserId) {
+        throw new Error("Select a customer first.");
+      }
+
+      return adminApi.adjustUserRewardPoints(api, selectedUserId, {
+        amount: Number(adjustmentAmount),
+        note: adjustmentNote.trim(),
+      });
+    },
+    onSuccess: () => {
+      setNotice("Customer coin balance updated.");
+      setAdjustmentAmount("");
+      setAdjustmentNote("");
+      queryClient.invalidateQueries({ queryKey: ["admin-users"] });
+      queryClient.invalidateQueries({ queryKey: ["admin-user-reward-activity", selectedUserId] });
+      queryClient.invalidateQueries({ queryKey: ["rewards-summary"] });
+      queryClient.invalidateQueries({ queryKey: ["admin-overview"] });
+    },
+    onError: (error) => setNotice(getApiErrorMessage(error)),
+  });
+
   useEffect(() => {
     if (!notice) {
       return;
@@ -201,6 +232,8 @@ export default function AdminScreen() {
     () => usersQuery.data?.find((user: { _id: string }) => user._id === selectedUserId),
     [selectedUserId, usersQuery.data]
   );
+
+  const selectedUserRewardSummary = rewardActivityQuery.data?.user;
 
   const filteredReleases = useMemo(() => {
     const needle = releaseSearch.trim().toLowerCase();
@@ -291,7 +324,7 @@ export default function AdminScreen() {
     <View className="flex-1">
       {notice ? (
         <View className="mx-4 mt-4 rounded-xl bg-emerald-600 px-4 py-3">
-          <Text className="font-gothamMedium text-center text-sm text-white">{notice}</Text>
+          <Text className="text-center font-gothamMedium text-sm text-white">{notice}</Text>
         </View>
       ) : null}
 
@@ -480,7 +513,9 @@ export default function AdminScreen() {
                 onChangeText={(value) => setRewardForm((current) => ({ ...current, code: value }))}
               />
               <View className="flex-row items-center justify-between rounded-xl bg-white/5 px-4 py-3">
-                <Text className="font-gothamMedium text-sm text-red-600 bg-white p-2 rounded-lg">Active reward</Text>
+                <Text className="rounded-lg bg-white p-2 font-gothamMedium text-sm text-red-600">
+                  Active reward
+                </Text>
                 <TouchableOpacity
                   onPress={() =>
                     setRewardForm((current) => ({ ...current, active: !current.active }))
@@ -577,7 +612,7 @@ export default function AdminScreen() {
           <View className="gap-4">
             <SectionTitle
               title="Customers"
-              subtitle="Inspect pull lists by customer and see current reward balances."
+              subtitle="Inspect pull lists, reward balances, and activity by customer."
             />
             <Field
               label="Search customers"
@@ -604,6 +639,34 @@ export default function AdminScreen() {
                   title={`Pull List • ${selectedUser.email || "Customer"}`}
                   subtitle={`${userPullListQuery.data?.items?.length ?? 0} active titles`}
                 />
+                <View className="rounded-xl bg-white/5 p-4">
+                  <Text className="font-gothamBold text-base text-white">Rewards Wallet</Text>
+                  <Text className="mt-1 font-gothamLight text-sm text-neutral-300">
+                    Current coins: {selectedUserRewardSummary?.rewardPoints ?? selectedUser.rewardPoints}
+                    {"  "}•{"  "}Lifetime: {selectedUserRewardSummary?.lifetimePoints ?? selectedUser.lifetimePoints}
+                  </Text>
+                  <View className="mt-4 gap-3">
+                    <Field
+                      label="Adjust coins (+ or -)"
+                      value={adjustmentAmount}
+                      onChangeText={setAdjustmentAmount}
+                    />
+                    <Field
+                      label="Adjustment note"
+                      value={adjustmentNote}
+                      onChangeText={setAdjustmentNote}
+                      multiline
+                    />
+                    <PrimaryButton
+                      label={
+                        rewardAdjustmentMutation.isPending
+                          ? "Saving..."
+                          : "Apply coin adjustment"
+                      }
+                      onPress={() => rewardAdjustmentMutation.mutate()}
+                    />
+                  </View>
+                </View>
                 {userPullListQuery.isPending ? (
                   <ActivityIndicator color="#ffffff" />
                 ) : (
@@ -612,6 +675,21 @@ export default function AdminScreen() {
                       key={item._id}
                       title={item.title}
                       subtitle={`${item.publisher} • ${item.seriesKey}`}
+                    />
+                  ))
+                )}
+                <SectionTitle
+                  title="Reward Activity"
+                  subtitle={`${rewardActivityQuery.data?.activity?.length ?? 0} recent entries`}
+                />
+                {rewardActivityQuery.isPending ? (
+                  <ActivityIndicator color="#ffffff" />
+                ) : (
+                  (rewardActivityQuery.data?.activity ?? []).map((item: any) => (
+                    <RecordCard
+                      key={item.id}
+                      title={`${item.type === "earn" ? "+" : "-"}${item.amount} • ${item.title}`}
+                      subtitle={`${item.description || "No note"} • Balance ${item.balanceAfter} • ${formatAdminDate(item.createdAt)}`}
                     />
                   ))
                 )}
@@ -712,9 +790,21 @@ function Field({
   );
 }
 
-function PrimaryButton({ label, onPress }: { label: string; onPress: () => void }) {
+function PrimaryButton({
+  label,
+  onPress,
+  disabled,
+}: {
+  label: string;
+  onPress: () => void;
+  disabled?: boolean;
+}) {
   return (
-    <TouchableOpacity onPress={onPress} className="rounded-xl bg-red-600 px-4 py-3">
+    <TouchableOpacity
+      onPress={onPress}
+      disabled={disabled}
+      className={`rounded-xl px-4 py-3 ${disabled ? "bg-red-400" : "bg-red-600"}`}
+    >
       <Text className="font-gothamMedium text-white">{label}</Text>
     </TouchableOpacity>
   );
@@ -808,3 +898,17 @@ function FilterChip({
     </TouchableOpacity>
   );
 }
+
+function formatAdminDate(value: string) {
+  const date = new Date(value);
+
+  if (Number.isNaN(date.getTime())) {
+    return "Unknown date";
+  }
+
+  return date.toLocaleDateString(undefined, {
+    month: "short",
+    day: "numeric",
+  });
+}
+

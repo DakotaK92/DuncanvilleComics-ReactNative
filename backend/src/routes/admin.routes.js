@@ -1,6 +1,7 @@
 import express from "express";
 import User from "../models/user.js";
 import Reward from "../models/reward.js";
+import RewardTransaction from "../models/rewardTransaction.js";
 import WeeklyRelease from "../models/weeklyRelease.js";
 import PullListItem from "../models/pullListItem.js";
 import { protectRoute } from "../middleware/auth.middleware.js";
@@ -36,6 +37,16 @@ const serializeReward = (reward) => ({
   description: reward.description,
   cost: reward.cost,
   active: reward.active,
+});
+
+const serializeRewardTransaction = (transaction) => ({
+  id: transaction._id,
+  type: transaction.type,
+  amount: transaction.amount,
+  balanceAfter: transaction.balanceAfter,
+  title: transaction.title,
+  description: transaction.description,
+  createdAt: transaction.createdAt,
 });
 
 router.get("/overview", async (_req, res) => {
@@ -263,6 +274,86 @@ router.get("/users/:id/pull-list", async (req, res) => {
       lastName: user.lastName,
     },
     items,
+  });
+});
+
+router.get("/users/:id/reward-activity", async (req, res) => {
+  const user = await User.findById(req.params.id);
+
+  if (!user) {
+    return res.status(404).json({ message: "User not found" });
+  }
+
+  const activity = await RewardTransaction.find({ user: user._id })
+    .sort({ createdAt: -1 })
+    .limit(12);
+
+  res.json({
+    user: {
+      id: user._id,
+      email: user.email,
+      firstName: user.firstName,
+      lastName: user.lastName,
+      rewardPoints: user.rewardPoints,
+      lifetimePoints: user.lifetimePoints,
+    },
+    activity: activity.map(serializeRewardTransaction),
+  });
+});
+
+router.post("/users/:id/reward-adjustments", async (req, res) => {
+  const { amount, note = "" } = req.body ?? {};
+  const parsedAmount = Number(amount);
+
+  if (!Number.isFinite(parsedAmount) || parsedAmount === 0) {
+    return res.status(400).json({
+      message: "A non-zero numeric amount is required.",
+    });
+  }
+
+  const user = await User.findById(req.params.id);
+
+  if (!user) {
+    return res.status(404).json({ message: "User not found" });
+  }
+
+  const nextBalance = user.rewardPoints + parsedAmount;
+
+  if (nextBalance < 0) {
+    return res.status(400).json({
+      message: "This adjustment would drop the user below zero coins.",
+    });
+  }
+
+  user.rewardPoints = nextBalance;
+
+  if (parsedAmount > 0) {
+    user.lifetimePoints += parsedAmount;
+  }
+
+  await user.save();
+
+  const transaction = await RewardTransaction.create({
+    user: user._id,
+    type: parsedAmount > 0 ? "earn" : "redeem",
+    amount: Math.abs(parsedAmount),
+    balanceAfter: user.rewardPoints,
+    title: parsedAmount > 0 ? "Admin coin adjustment" : "Admin coin deduction",
+    description:
+      note.trim() ||
+      (parsedAmount > 0
+        ? "Manual coin adjustment from store admin."
+        : "Manual coin deduction from store admin."),
+  });
+
+  res.status(201).json({
+    ok: true,
+    user: {
+      id: user._id,
+      rewardPoints: user.rewardPoints,
+      lifetimePoints: user.lifetimePoints,
+    },
+    transaction: serializeRewardTransaction(transaction),
   });
 });
 

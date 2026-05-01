@@ -1,5 +1,6 @@
 import express from "express";
 import User from "../models/user.js";
+import RewardTransaction from "../models/rewardTransaction.js";
 import { protectRoute } from "../middleware/auth.middleware.js";
 
 const router = express.Router();
@@ -7,21 +8,32 @@ const router = express.Router();
 router.post("/sync", protectRoute, async (req, res) => {
   const { email = "", firstName = "", lastName = "" } = req.body ?? {};
 
-  const user = await User.findOneAndUpdate(
-    { clerkUserId: req.userId },
-    {
-      $set: {
-        email,
-        firstName,
-        lastName,
-      },
-      $setOnInsert: {
-        rewardPoints: 1250,
-        lifetimePoints: 1250,
-      },
-    },
-    { new: true, upsert: true }
-  );
+  let user = await User.findOne({ clerkUserId: req.userId });
+
+  if (!user) {
+    user = await User.create({
+      clerkUserId: req.userId,
+      email,
+      firstName,
+      lastName,
+      rewardPoints: 1250,
+      lifetimePoints: 1250,
+    });
+
+    await RewardTransaction.create({
+      user: user._id,
+      type: "earn",
+      amount: 1250,
+      balanceAfter: 1250,
+      title: "Welcome bonus",
+      description: "Starting Comic Coins for joining Duncanville Comics rewards.",
+    });
+  } else {
+    user.email = email;
+    user.firstName = firstName;
+    user.lastName = lastName;
+    await user.save();
+  }
 
   res.json({ user });
 });

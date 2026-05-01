@@ -81,6 +81,7 @@ export const userApi = {
 
 export const rewardsApi = {
   getSummary: (api: AxiosInstance) => api.get("/rewards/me"),
+  redeem: (api: AxiosInstance, rewardId: string) => api.post(`/rewards/redeem/${rewardId}`),
 };
 
 export const weeklyReleasesApi = {
@@ -171,5 +172,12 @@ export const adminApi = {
   getUsers: (api: AxiosInstance) => api.get("/admin/users"),
   getUserPullList: (api: AxiosInstance, userId: string) =>
     api.get(`/admin/users/${userId}/pull-list`),
+  getUserRewardActivity: (api: AxiosInstance, userId: string) =>
+    api.get(`/admin/users/${userId}/reward-activity`),
+  adjustUserRewardPoints: (
+    api: AxiosInstance,
+    userId: string,
+    payload: { amount: number; note?: string }
+  ) => api.post(`/admin/users/${userId}/reward-adjustments`, payload),
   getSubscriptions: (api: AxiosInstance) => api.get("/admin/subscriptions"),
 };
