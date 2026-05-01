@@ -10,6 +10,7 @@ const router = express.Router();
 const serializeActivity = (activity) => ({
   id: activity._id,
   type: activity.type,
+  status: activity.status,
   amount: activity.amount,
   balanceAfter: activity.balanceAfter,
   title: activity.title,
@@ -83,6 +84,7 @@ router.post("/redeem/:rewardId", protectRoute, async (req, res) => {
   const transaction = await RewardTransaction.create({
     user: user._id,
     type: "redeem",
+    status: "pending",
     amount: reward.cost,
     balanceAfter: user.rewardPoints,
     title: reward.title,

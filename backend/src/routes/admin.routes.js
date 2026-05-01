@@ -4,6 +4,7 @@ import Reward from "../models/reward.js";
 import RewardTransaction from "../models/rewardTransaction.js";
 import WeeklyRelease from "../models/weeklyRelease.js";
 import PullListItem from "../models/pullListItem.js";
+import { defaultEarnRules } from "../data/earnRules.js";
 import { protectRoute } from "../middleware/auth.middleware.js";
 import { protectAdminRoute } from "../middleware/admin.middleware.js";
 
@@ -42,6 +43,7 @@ const serializeReward = (reward) => ({
 const serializeRewardTransaction = (transaction) => ({
   id: transaction._id,
   type: transaction.type,
+  status: transaction.status,
   amount: transaction.amount,
   balanceAfter: transaction.balanceAfter,
   title: transaction.title,
@@ -80,6 +82,10 @@ router.get("/overview", async (_req, res) => {
     },
     topSubscriptions,
   });
+});
+
+router.get("/earn-rules", async (_req, res) => {
+  res.json({ earnRules: defaultEarnRules });
 });
 
 router.get("/weekly-releases", async (_req, res) => {
@@ -336,6 +342,7 @@ router.post("/users/:id/reward-adjustments", async (req, res) => {
   const transaction = await RewardTransaction.create({
     user: user._id,
     type: parsedAmount > 0 ? "earn" : "redeem",
+    status: parsedAmount > 0 ? "completed" : "fulfilled",
     amount: Math.abs(parsedAmount),
     balanceAfter: user.rewardPoints,
     title: parsedAmount > 0 ? "Admin coin adjustment" : "Admin coin deduction",
@@ -353,6 +360,72 @@ router.post("/users/:id/reward-adjustments", async (req, res) => {
       rewardPoints: user.rewardPoints,
       lifetimePoints: user.lifetimePoints,
     },
+    transaction: serializeRewardTransaction(transaction),
+  });
+});
+
+router.post("/users/:id/reward-awards", async (req, res) => {
+  const { earnRuleId, amount, note = "" } = req.body ?? {};
+  const rule = defaultEarnRules.find((item) => item.id === earnRuleId);
+  const parsedAmount = Number(amount ?? rule?.points);
+
+  if (!rule) {
+    return res.status(400).json({ message: "A valid earn rule is required." });
+  }
+
+  if (!Number.isFinite(parsedAmount) || parsedAmount <= 0) {
+    return res.status(400).json({ message: "Award amount must be greater than zero." });
+  }
+
+  const user = await User.findById(req.params.id);
+
+  if (!user) {
+    return res.status(404).json({ message: "User not found" });
+  }
+
+  user.rewardPoints += parsedAmount;
+  user.lifetimePoints += parsedAmount;
+  await user.save();
+
+  const transaction = await RewardTransaction.create({
+    user: user._id,
+    type: "earn",
+    status: "completed",
+    amount: parsedAmount,
+    balanceAfter: user.rewardPoints,
+    title: rule.label,
+    description: note.trim() || rule.description || "Store-awarded reward coins.",
+  });
+
+  res.status(201).json({
+    ok: true,
+    user: {
+      id: user._id,
+      rewardPoints: user.rewardPoints,
+      lifetimePoints: user.lifetimePoints,
+    },
+    transaction: serializeRewardTransaction(transaction),
+  });
+});
+
+router.patch("/reward-activity/:id/status", async (req, res) => {
+  const { status } = req.body ?? {};
+
+  if (!["pending", "fulfilled", "completed"].includes(String(status))) {
+    return res.status(400).json({ message: "A valid status is required." });
+  }
+
+  const transaction = await RewardTransaction.findById(req.params.id);
+
+  if (!transaction) {
+    return res.status(404).json({ message: "Reward activity not found" });
+  }
+
+  transaction.status = status;
+  await transaction.save();
+
+  res.json({
+    ok: true,
     transaction: serializeRewardTransaction(transaction),
   });
 });

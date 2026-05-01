@@ -174,10 +174,21 @@ export const adminApi = {
     api.get(`/admin/users/${userId}/pull-list`),
   getUserRewardActivity: (api: AxiosInstance, userId: string) =>
     api.get(`/admin/users/${userId}/reward-activity`),
+  getEarnRules: (api: AxiosInstance) => api.get("/admin/earn-rules"),
+  awardUserRewardPoints: (
+    api: AxiosInstance,
+    userId: string,
+    payload: { earnRuleId: string; amount?: number; note?: string }
+  ) => api.post(`/admin/users/${userId}/reward-awards`, payload),
   adjustUserRewardPoints: (
     api: AxiosInstance,
     userId: string,
     payload: { amount: number; note?: string }
   ) => api.post(`/admin/users/${userId}/reward-adjustments`, payload),
+  updateRewardActivityStatus: (
+    api: AxiosInstance,
+    activityId: string,
+    payload: { status: "pending" | "fulfilled" | "completed" }
+  ) => api.patch(`/admin/reward-activity/${activityId}/status`, payload),
   getSubscriptions: (api: AxiosInstance) => api.get("/admin/subscriptions"),
 };

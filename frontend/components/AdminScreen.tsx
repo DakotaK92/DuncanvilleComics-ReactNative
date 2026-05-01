@@ -32,6 +32,13 @@ type RewardFormState = {
   active: boolean;
 };
 
+type EarnRule = {
+  id: string;
+  label: string;
+  points: number;
+  description?: string;
+};
+
 const emptyReleaseForm: ReleaseFormState = {
   title: "",
   issue: "",
@@ -65,6 +72,7 @@ export default function AdminScreen() {
   const [customerSearch, setCustomerSearch] = useState("");
   const [titleSearch, setTitleSearch] = useState("");
   const [rewardFilter, setRewardFilter] = useState<RewardFilter>("all");
+  const [selectedEarnRuleId, setSelectedEarnRuleId] = useState("");
   const [adjustmentAmount, setAdjustmentAmount] = useState("");
   const [adjustmentNote, setAdjustmentNote] = useState("");
 
@@ -88,6 +96,11 @@ export default function AdminScreen() {
     queryFn: async () => (await adminApi.getUsers(api)).data.users,
   });
 
+  const earnRulesQuery = useQuery({
+    queryKey: ["admin-earn-rules"],
+    queryFn: async () => (await adminApi.getEarnRules(api)).data.earnRules as EarnRule[],
+  });
+
   const subscriptionsQuery = useQuery({
     queryKey: ["admin-subscriptions"],
     queryFn: async () => (await adminApi.getSubscriptions(api)).data.subscriptions,
@@ -103,6 +116,32 @@ export default function AdminScreen() {
     queryKey: ["admin-user-reward-activity", selectedUserId],
     queryFn: async () => (await adminApi.getUserRewardActivity(api, selectedUserId!)).data,
     enabled: Boolean(selectedUserId),
+  });
+
+  const awardRewardMutation = useMutation({
+    mutationFn: async () => {
+      if (!selectedUserId) {
+        throw new Error("Select a customer first.");
+      }
+
+      if (!selectedEarnRuleId) {
+        throw new Error("Choose an earn action first.");
+      }
+
+      return adminApi.awardUserRewardPoints(api, selectedUserId, {
+        earnRuleId: selectedEarnRuleId,
+        note: adjustmentNote.trim(),
+      });
+    },
+    onSuccess: () => {
+      setNotice("Reward points awarded.");
+      setAdjustmentNote("");
+      queryClient.invalidateQueries({ queryKey: ["admin-users"] });
+      queryClient.invalidateQueries({ queryKey: ["admin-user-reward-activity", selectedUserId] });
+      queryClient.invalidateQueries({ queryKey: ["rewards-summary"] });
+      queryClient.invalidateQueries({ queryKey: ["admin-overview"] });
+    },
+    onError: (error) => setNotice(getApiErrorMessage(error)),
   });
 
   const releaseMutation = useMutation({
@@ -203,6 +242,22 @@ export default function AdminScreen() {
     onError: (error) => setNotice(getApiErrorMessage(error)),
   });
 
+  const rewardStatusMutation = useMutation({
+    mutationFn: async ({
+      activityId,
+      status,
+    }: {
+      activityId: string;
+      status: "pending" | "fulfilled" | "completed";
+    }) => adminApi.updateRewardActivityStatus(api, activityId, { status }),
+    onSuccess: () => {
+      setNotice("Reward activity updated.");
+      queryClient.invalidateQueries({ queryKey: ["admin-user-reward-activity", selectedUserId] });
+      queryClient.invalidateQueries({ queryKey: ["rewards-summary"] });
+    },
+    onError: (error) => setNotice(getApiErrorMessage(error)),
+  });
+
   useEffect(() => {
     if (!notice) {
       return;
@@ -234,6 +289,8 @@ export default function AdminScreen() {
   );
 
   const selectedUserRewardSummary = rewardActivityQuery.data?.user;
+  const earnRules = earnRulesQuery.data ?? [];
+  const selectedEarnRule = earnRules.find((rule) => rule.id === selectedEarnRuleId) ?? null;
 
   const filteredReleases = useMemo(() => {
     const needle = releaseSearch.trim().toLowerCase();
@@ -646,6 +703,40 @@ export default function AdminScreen() {
                     {"  "}•{"  "}Lifetime: {selectedUserRewardSummary?.lifetimePoints ?? selectedUser.lifetimePoints}
                   </Text>
                   <View className="mt-4 gap-3">
+                    <View>
+                      <Text className="mb-2 font-gothamMedium text-sm text-neutral-200">
+                        Award preset earn action
+                      </Text>
+                      <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+                        <View className="flex-row gap-2">
+                          {earnRules.map((rule) => (
+                            <FilterChip
+                              key={rule.id}
+                              label={`${rule.label} (+${rule.points})`}
+                              active={selectedEarnRuleId === rule.id}
+                              onPress={() => setSelectedEarnRuleId(rule.id)}
+                            />
+                          ))}
+                        </View>
+                      </ScrollView>
+                    </View>
+                    {selectedEarnRule ? (
+                      <View className="rounded-xl bg-white/10 p-3">
+                        <Text className="font-gothamMedium text-sm text-white">
+                          {selectedEarnRule.label}
+                        </Text>
+                        <Text className="mt-1 font-gothamLight text-xs text-neutral-300">
+                          {selectedEarnRule.description}
+                        </Text>
+                      </View>
+                    ) : null}
+                    <PrimaryButton
+                      label={
+                        awardRewardMutation.isPending ? "Awarding..." : "Award selected action"
+                      }
+                      onPress={() => awardRewardMutation.mutate()}
+                      disabled={!selectedEarnRuleId}
+                    />
                     <Field
                       label="Adjust coins (+ or -)"
                       value={adjustmentAmount}
@@ -689,7 +780,24 @@ export default function AdminScreen() {
                     <RecordCard
                       key={item.id}
                       title={`${item.type === "earn" ? "+" : "-"}${item.amount} • ${item.title}`}
-                      subtitle={`${item.description || "No note"} • Balance ${item.balanceAfter} • ${formatAdminDate(item.createdAt)}`}
+                      subtitle={`${item.description || "No note"} • ${formatRewardStatus(item.status)} • Balance ${item.balanceAfter} • ${formatAdminDate(item.createdAt)}`}
+                      actionLabel={
+                        item.type === "redeem" && item.status === "pending"
+                          ? rewardStatusMutation.isPending &&
+                            rewardStatusMutation.variables?.activityId === item.id
+                            ? "Saving..."
+                            : "Mark fulfilled"
+                          : undefined
+                      }
+                      onPressAction={
+                        item.type === "redeem" && item.status === "pending"
+                          ? () =>
+                              rewardStatusMutation.mutate({
+                                activityId: item.id,
+                                status: "fulfilled",
+                              })
+                          : undefined
+                      }
                     />
                   ))
                 )}
@@ -912,3 +1020,13 @@ function formatAdminDate(value: string) {
   });
 }
 
+function formatRewardStatus(status?: string) {
+  switch (status) {
+    case "pending":
+      return "Pending fulfillment";
+    case "fulfilled":
+      return "Fulfilled";
+    default:
+      return "Completed";
+  }
+}

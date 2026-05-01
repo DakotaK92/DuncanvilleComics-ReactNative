@@ -13,6 +13,11 @@ const RewardTransactionSchema = new mongoose.Schema(
       enum: ["earn", "redeem"],
       required: true,
     },
+    status: {
+      type: String,
+      enum: ["completed", "pending", "fulfilled"],
+      default: "completed",
+    },
     amount: {
       type: Number,
       required: true,
@@ -44,4 +49,3 @@ const RewardTransactionSchema = new mongoose.Schema(
 
 export default mongoose.models.RewardTransaction ||
   mongoose.model("RewardTransaction", RewardTransactionSchema);
-

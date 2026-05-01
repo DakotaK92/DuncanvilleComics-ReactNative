@@ -23,6 +23,7 @@ router.post("/sync", protectRoute, async (req, res) => {
     await RewardTransaction.create({
       user: user._id,
       type: "earn",
+      status: "completed",
       amount: 1250,
       balanceAfter: 1250,
       title: "Welcome bonus",
