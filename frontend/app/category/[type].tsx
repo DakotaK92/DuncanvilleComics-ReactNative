@@ -57,6 +57,15 @@ const subtitleMap: Partial<Record<CategoryType, string>> = {
 
 type PullListFilter = "all" | "ready";
 
+const getHeroCardClassName = (categoryType?: CategoryType) =>
+  categoryType === "weekly-releases" ||
+  categoryType === "pre-order" ||
+  categoryType === "deals" ||
+  categoryType === "graded" ||
+  categoryType === "back-issues"
+    ? "mb-5 overflow-hidden rounded-2xl bg-red-600 p-5"
+    : "mb-5 overflow-hidden rounded-2xl bg-neutral-900/90 p-5";
+
 export default function CategoryScreen() {
   const { type } = useLocalSearchParams<{ type: CategoryType }>();
   const api = useApiClient();
@@ -268,7 +277,7 @@ export default function CategoryScreen() {
             data={[]}
             contentContainerStyle={{ padding: 16, paddingBottom: 32 }}
             ListHeaderComponent={
-              <View className="mb-5 overflow-hidden rounded-2xl bg-neutral-900/90 p-5">
+              <View className={getHeroCardClassName(type)}>
                 <Text className="font-gothamBold text-3xl text-white">
                   {type ? titleMap[type] : ""}
                 </Text>
@@ -306,7 +315,7 @@ export default function CategoryScreen() {
             data={[]}
             contentContainerStyle={{ padding: 16, paddingBottom: 32 }}
             ListHeaderComponent={
-              <View className="mb-5 overflow-hidden rounded-2xl bg-neutral-900/90 p-5">
+              <View className={getHeroCardClassName(type)}>
                 <Text className="font-gothamBold text-3xl text-white">
                   {type ? titleMap[type] : ""}
                 </Text>
@@ -348,7 +357,7 @@ export default function CategoryScreen() {
             keyExtractor={(item) => item.id?.toString?.() ?? item.seriesKey}
             contentContainerStyle={{ padding: 16, paddingBottom: 32 }}
             ListHeaderComponent={
-              <View className="mb-5 overflow-hidden rounded-2xl bg-neutral-900/90 p-5">
+              <View className={getHeroCardClassName(type)}>
                 <Text className="font-gothamBold text-3xl text-white">
                   {type ? titleMap[type] : ""}
                 </Text>
