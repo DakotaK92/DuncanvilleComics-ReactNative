@@ -1,6 +1,12 @@
 import axios, { AxiosError, AxiosInstance } from "axios";
 import { useAuth } from "@clerk/clerk-expo";
 import Constants from "expo-constants";
+import type {
+  PullListItem,
+  RemoteComicBook,
+  RewardsSummaryResponse,
+  WishListItem,
+} from "./apiTypes";
 
 const getExpoHostUrl = () => {
   const hostUri =
@@ -80,16 +86,16 @@ export const userApi = {
 };
 
 export const rewardsApi = {
-  getSummary: (api: AxiosInstance) => api.get("/rewards/me"),
+  getSummary: (api: AxiosInstance) => api.get<RewardsSummaryResponse>("/rewards/me"),
   redeem: (api: AxiosInstance, rewardId: string) => api.post(`/rewards/redeem/${rewardId}`),
 };
 
 export const weeklyReleasesApi = {
-  getAll: (api: AxiosInstance) => api.get("/weekly-releases"),
+  getAll: (api: AxiosInstance) => api.get<{ releases: RemoteComicBook[] }>("/weekly-releases"),
 };
 
 export const pullListApi = {
-  getAll: (api: AxiosInstance) => api.get("/pull-list"),
+  getAll: (api: AxiosInstance) => api.get<{ items: PullListItem[] }>("/pull-list"),
   add: (
     api: AxiosInstance,
     payload: { title: string; publisher: string; seriesKey: string; notes?: string }
@@ -100,7 +106,7 @@ export const pullListApi = {
 };
 
 export const wishListApi = {
-  getAll: (api: AxiosInstance) => api.get("/wish-list"),
+  getAll: (api: AxiosInstance) => api.get<{ items: WishListItem[] }>("/wish-list"),
   add: (
     api: AxiosInstance,
     payload: {

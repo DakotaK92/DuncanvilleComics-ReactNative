@@ -26,6 +26,7 @@ import {
   weeklyReleasesApi,
   wishListApi,
 } from "@/utils/api";
+import type { PullListItem } from "@/utils/apiTypes";
 
 const categoryDataMap = {
   "weekly-releases": weeklyReleases,
@@ -162,7 +163,7 @@ export default function CategoryScreen() {
   })();
 
   const pullListItems = useMemo(
-    () => (pullListQuery.data ?? []) as { hasNewIssue?: boolean; seriesKey: string }[],
+    () => pullListQuery.data ?? [],
     [pullListQuery.data]
   );
 
@@ -175,7 +176,7 @@ export default function CategoryScreen() {
     }
 
     if (pullListFilter === "ready") {
-      return rawData.filter((item: { hasNewIssue?: boolean }) => item.hasNewIssue);
+      return rawData.filter((item: PullListItem) => item.hasNewIssue);
     }
 
     return rawData;
@@ -192,7 +193,7 @@ export default function CategoryScreen() {
   );
 
   const wishListItems = useMemo(
-    () => (wishListQuery.data ?? []) as { id: string; seriesKey: string }[],
+    () => wishListQuery.data ?? [],
     [wishListQuery.data]
   );
 
