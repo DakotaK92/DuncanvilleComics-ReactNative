@@ -1,23 +1,34 @@
 import { useClerk } from "@clerk/clerk-expo";
-import { Alert } from "react-native";
 import { router } from "expo-router";
+import { Alert } from "react-native";
+import { useState } from "react";
 
 export const useSignOut = () => {
   const { signOut } = useClerk();
+  const [isSigningOut, setIsSigningOut] = useState(false);
 
-  const handleSignOut = () => {
-    Alert.alert("Logout", "Are you sure you want to logout?", [
+  const confirmSignOut = () => {
+    if (isSigningOut) {
+      return;
+    }
+
+    Alert.alert("Log out", "Are you sure you want to log out of Duncanville Comics?", [
       { text: "Cancel", style: "cancel" },
       {
-        text: "Logout",
+        text: "Log out",
         style: "destructive",
         onPress: async () => {
-          await signOut();
-          router.replace("/(auth)");
+          try {
+            setIsSigningOut(true);
+            await signOut();
+            router.replace("/(auth)");
+          } finally {
+            setIsSigningOut(false);
+          }
         },
       },
     ]);
   };
 
-  return { handleSignOut };
+  return { confirmSignOut, isSigningOut };
 };
