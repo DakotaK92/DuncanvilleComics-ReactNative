@@ -1,9 +1,9 @@
 import { useEffect } from "react";
-import { View, Image, ImageBackground, Text } from "react-native";
+import { View, ImageBackground, Text } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { router } from "expo-router";
 
-import SignOutButton from "../../components/SignOutButton";
+import AppHeader from "../../components/AppHeader";
 import AdminScreen from "../../components/AdminScreen";
 import { useAdminAccess } from "../../hooks/useAdminAccess";
 
@@ -22,14 +22,7 @@ const Admin = () => {
 
   return (
     <SafeAreaView className="flex-1 bg-transparent" edges={["top"]}>
-      <View className="flex-row items-center justify-between border-b border-gray-200 px-4 py-3">
-        <View className="h-10 w-10" />
-        <Image
-          source={require("../../assets/icons/logo.png")}
-          className="h-10 w-24 items-center"
-        />
-        <SignOutButton />
-      </View>
+      <AppHeader />
 
       <ImageBackground
         source={require("../../assets/images/imagebackground.png")}
