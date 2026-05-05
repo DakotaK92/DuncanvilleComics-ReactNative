@@ -198,7 +198,6 @@ function Overview({
         0
       )
     : 100;
-
   return (
     <FlatList
       data={recentActivity}
@@ -241,7 +240,7 @@ function Overview({
           <View className="mt-5 rounded-2xl bg-white/95 p-5 shadow">
             <Text className="text-lg font-gothamBold text-neutral-900">Recent Activity</Text>
             <Text className="mt-1 font-gothamLight text-sm text-neutral-500">
-              Your latest coin movement and reward redemptions.
+              Tracking the current reward week from Sunday through Saturday.
             </Text>
           </View>
         </>
@@ -421,4 +420,3 @@ function formatActivityDate(value: string) {
     day: "numeric",
   });
 }
-

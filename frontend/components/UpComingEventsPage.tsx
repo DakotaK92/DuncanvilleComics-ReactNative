@@ -26,6 +26,13 @@ const EventsPage = () => {
       data={eventDates}
       keyExtractor={(item) => item}
       contentContainerStyle={{ padding: 16 }}
+      ListHeaderComponent={
+        <View className="pb-4">
+          <Text className="h-12 rounded bg-red-600 px-4 text-center font-gothamBold text-xl leading-[48px] text-white">
+            UPCOMING EVENTS
+          </Text>
+        </View>
+      }
       renderItem={({ item }) => {
         const dayEvents = eventsByDate[item];
         const displayDate = format(new Date(item), "EEEE, MMMM d");
