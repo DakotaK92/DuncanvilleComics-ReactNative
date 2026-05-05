@@ -1,15 +1,18 @@
 import { useEffect, useMemo, useState } from "react";
 import {
   ActivityIndicator,
-  Alert,
   ScrollView,
   Text,
-  TextInput,
   TouchableOpacity,
   View,
 } from "react-native";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { adminApi, getApiErrorMessage, useApiClient } from "../utils/api";
+import { AdminCustomersSection } from "./admin/AdminCustomersSection";
+import { AdminOverviewSection } from "./admin/AdminOverviewSection";
+import { AdminReleasesSection } from "./admin/AdminReleasesSection";
+import { AdminRewardsSection } from "./admin/AdminRewardsSection";
+import { AdminTopTitlesSection } from "./admin/AdminTopTitlesSection";
 
 type AdminView = "overview" | "releases" | "rewards" | "customers" | "titles";
 type RewardFilter = "all" | "active" | "inactive";
@@ -422,745 +425,85 @@ export default function AdminScreen() {
           ))}
         </ScrollView>
 
-        {activeView === "overview" ? <OverviewSection overview={overviewQuery.data} /> : null}
+        {activeView === "overview" ? <AdminOverviewSection overview={overviewQuery.data} /> : null}
 
         {activeView === "releases" ? (
-          <View className="gap-4">
-            <SectionTitle
-              title={editingReleaseId ? "Edit Weekly Release" : "Add Weekly Release"}
-              subtitle="Create, update, or remove the books customers can add to their pull lists."
-              lightPanel
-            />
-            <View className="gap-3">
-              <Field
-                label="Title"
-                value={releaseForm.title}
-                darkLabel
-                onChangeText={(value) => setReleaseForm((current) => ({ ...current, title: value }))}
-              />
-              <Field
-                label="Issue"
-                value={releaseForm.issue}
-                keyboardType="numeric"
-                darkLabel
-                onChangeText={(value) => setReleaseForm((current) => ({ ...current, issue: value }))}
-              />
-              <Field
-                label="Publisher"
-                value={releaseForm.publisher}
-                darkLabel
-                onChangeText={(value) =>
-                  setReleaseForm((current) => ({ ...current, publisher: value }))
-                }
-              />
-              <Field
-                label="Price"
-                value={releaseForm.price}
-                keyboardType="decimal-pad"
-                darkLabel
-                onChangeText={(value) => setReleaseForm((current) => ({ ...current, price: value }))}
-              />
-              <Field
-                label="Release Date (YYYY-MM-DD)"
-                value={releaseForm.releaseDate}
-                darkLabel
-                onChangeText={(value) =>
-                  setReleaseForm((current) => ({ ...current, releaseDate: value }))
-                }
-              />
-              <Field
-                label="Series Key"
-                value={releaseForm.seriesKey}
-                darkLabel
-                onChangeText={(value) =>
-                  setReleaseForm((current) => ({ ...current, seriesKey: value }))
-                }
-              />
-              <Field
-                label="Cover Image URL"
-                value={releaseForm.coverImageUrl}
-                darkLabel
-                onChangeText={(value) =>
-                  setReleaseForm((current) => ({ ...current, coverImageUrl: value }))
-                }
-              />
-            </View>
-            <View className="flex-row gap-2">
-              <PrimaryButton
-                label={
-                  releaseMutation.isPending
-                    ? "Saving..."
-                    : editingReleaseId
-                      ? "Update release"
-                      : "Create release"
-                }
-                onPress={() => releaseMutation.mutate()}
-              />
-              {(editingReleaseId || releaseForm.title) && (
-                <SecondaryButton
-                  label="Clear"
-                  onPress={() => {
-                    setEditingReleaseId(null);
-                    setReleaseForm(emptyReleaseForm);
-                  }}
-                />
-              )}
-            </View>
-            <Field
-              label="Search releases"
-              value={releaseSearch}
-              darkLabel
-              onChangeText={setReleaseSearch}
-            />
-            <SectionTitle
-              title="Current Weekly Releases"
-              subtitle={`${filteredReleases.length} matching books`}
-              lightPanel
-            />
-            {filteredReleases.map((release: any) => (
-              <RecordCard
-                key={release.id}
-                title={`${release.title} #${release.issue}`}
-                tone="highlight"
-                subtitle={`${release.publisher} • $${Number(release.price).toFixed(2)} • ${String(
-                  release.releaseDate
-                ).slice(0, 10)}`}
-                actionLabel="Edit"
-                onPressAction={() => {
-                  setEditingReleaseId(release.id);
-                  setReleaseForm({
-                    title: release.title,
-                    issue: String(release.issue),
-                    publisher: release.publisher,
-                    price: String(release.price),
-                    releaseDate: String(release.releaseDate).slice(0, 10),
-                    coverImageUrl: release.coverImageUrl || "",
-                    seriesKey: release.seriesKey || "",
-                  });
-                  setActiveView("releases");
-                }}
-                secondaryActionLabel="Delete"
-                onPressSecondaryAction={() =>
-                  Alert.alert("Delete release", `Remove ${release.title} #${release.issue}?`, [
-                    { text: "Cancel", style: "cancel" },
-                    {
-                      text: "Delete",
-                      style: "destructive",
-                      onPress: () => deleteReleaseMutation.mutate(release.id),
-                    },
-                  ])
-                }
-              />
-            ))}
-          </View>
+          <AdminReleasesSection
+            editingReleaseId={editingReleaseId}
+            releaseForm={releaseForm}
+            emptyReleaseForm={emptyReleaseForm}
+            releaseMutationPending={releaseMutation.isPending}
+            releaseSearch={releaseSearch}
+            filteredReleases={filteredReleases}
+            setReleaseForm={setReleaseForm}
+            setEditingReleaseId={setEditingReleaseId}
+            setReleaseSearch={setReleaseSearch}
+            onSubmit={() => releaseMutation.mutate()}
+            onDelete={(id) => deleteReleaseMutation.mutate(id)}
+          />
         ) : null}
 
         {activeView === "rewards" ? (
-          <View className="gap-4">
-            <SectionTitle
-              title={editingRewardId ? "Edit Reward" : "Add Reward"}
-              subtitle="Keep your reward catalog current and easy to redeem."
-              lightPanel
-            />
-            <View className="gap-3">
-              <Field
-                label="Title"
-                value={rewardForm.title}
-                darkLabel
-                onChangeText={(value) => setRewardForm((current) => ({ ...current, title: value }))}
-              />
-              <Field
-                label="Description"
-                value={rewardForm.description}
-                darkLabel
-                onChangeText={(value) =>
-                  setRewardForm((current) => ({ ...current, description: value }))
-                }
-                multiline
-              />
-              <Field
-                label="Cost"
-                value={rewardForm.cost}
-                keyboardType="numeric"
-                darkLabel
-                onChangeText={(value) => setRewardForm((current) => ({ ...current, cost: value }))}
-              />
-              <Field
-                label="Code"
-                value={rewardForm.code}
-                darkLabel
-                onChangeText={(value) => setRewardForm((current) => ({ ...current, code: value }))}
-              />
-              <View className="flex-row items-center justify-between rounded-xl bg-white/5 px-4 py-3">
-                <Text className="rounded-lg bg-white p-2 font-gothamMedium text-sm text-red-600">
-                  Active reward
-                </Text>
-                <TouchableOpacity
-                  onPress={() =>
-                    setRewardForm((current) => ({ ...current, active: !current.active }))
-                  }
-                  className={`rounded-full px-4 py-2 ${
-                    rewardForm.active ? "bg-emerald-600" : "bg-white/10"
-                  }`}
-                >
-                  <Text className="font-gothamMedium text-sm text-white">
-                    {rewardForm.active ? "Active" : "Inactive"}
-                  </Text>
-                </TouchableOpacity>
-              </View>
-            </View>
-            <View className="flex-row gap-2">
-              <PrimaryButton
-                label={
-                  rewardMutation.isPending
-                    ? "Saving..."
-                    : editingRewardId
-                      ? "Update reward"
-                      : "Create reward"
-                }
-                onPress={() => rewardMutation.mutate()}
-              />
-              {(editingRewardId || rewardForm.title) && (
-                <SecondaryButton
-                  label="Clear"
-                  onPress={() => {
-                    setEditingRewardId(null);
-                    setRewardForm(emptyRewardForm);
-                  }}
-                />
-              )}
-            </View>
-            <Field
-              label="Search rewards"
-              value={rewardSearch}
-              darkLabel
-              onChangeText={setRewardSearch}
-            />
-            <View className="flex-row gap-2">
-              <FilterChip
-                label="All"
-                active={rewardFilter === "all"}
-                onPress={() => setRewardFilter("all")}
-              />
-              <FilterChip
-                label="Active"
-                active={rewardFilter === "active"}
-                onPress={() => setRewardFilter("active")}
-              />
-              <FilterChip
-                label="Inactive"
-                active={rewardFilter === "inactive"}
-                onPress={() => setRewardFilter("inactive")}
-              />
-            </View>
-            <SectionTitle
-              title="Reward Catalog"
-              subtitle={`${filteredRewards.length} matching rewards`}
-              lightPanel
-            />
-            {filteredRewards.map((reward: any) => (
-              <RecordCard
-                key={reward.id}
-                title={`${reward.title} • ${reward.cost} coins`}
-                subtitle={`${reward.active ? "Active" : "Inactive"} • ${
-                  reward.description || "No description"
-                }`}
-                actionLabel="Edit"
-                onPressAction={() => {
-                  setEditingRewardId(reward.id);
-                  setRewardForm({
-                    title: reward.title,
-                    description: reward.description || "",
-                    cost: String(reward.cost),
-                    code: reward.code || "",
-                    active: Boolean(reward.active),
-                  });
-                  setActiveView("rewards");
-                }}
-                secondaryActionLabel="Delete"
-                onPressSecondaryAction={() =>
-                  Alert.alert("Delete reward", `Remove ${reward.title}?`, [
-                    { text: "Cancel", style: "cancel" },
-                    {
-                      text: "Delete",
-                      style: "destructive",
-                      onPress: () => deleteRewardMutation.mutate(reward.id),
-                    },
-                  ])
-                }
-              />
-            ))}
-          </View>
+          <AdminRewardsSection
+            editingRewardId={editingRewardId}
+            rewardForm={rewardForm}
+            emptyRewardForm={emptyRewardForm}
+            rewardMutationPending={rewardMutation.isPending}
+            rewardSearch={rewardSearch}
+            rewardFilter={rewardFilter}
+            filteredRewards={filteredRewards}
+            setRewardForm={setRewardForm}
+            setEditingRewardId={setEditingRewardId}
+            setRewardSearch={setRewardSearch}
+            setRewardFilter={setRewardFilter}
+            onSubmit={() => rewardMutation.mutate()}
+            onDelete={(id) => deleteRewardMutation.mutate(id)}
+          />
         ) : null}
 
         {activeView === "customers" ? (
-          <View className="gap-4">
-            <SectionTitle
-              title="Customers"
-              subtitle="Inspect pull lists, reward balances, and activity by customer."
-              darkText
-            />
-            <Field
-              label="Search customers"
-              value={customerSearch}
-              darkLabel
-              onChangeText={setCustomerSearch}
-            />
-            {filteredUsers.map((user: any) => (
-              <RecordCard
-                key={user._id}
-                tone="highlight"
-                title={
-                  user.email ||
-                  `${user.firstName || ""} ${user.lastName || ""}`.trim() ||
-                  "Unnamed user"
-                }
-                subtitle={`${user.pullListCount} pull-list titles • ${user.rewardPoints} coins`}
-                actionLabel={selectedUserId === user._id ? "Selected" : "Open"}
-                onPressAction={() => setSelectedUserId(user._id)}
-              />
-            ))}
-
-            {selectedUser ? (
-              <View className="gap-3 pt-2">
-                <SectionTitle
-                  title={`Pull List • ${selectedUser.email || "Customer"}`}
-                  subtitle={`${userPullListQuery.data?.items?.length ?? 0} active titles`}
-                  darkText
-                />
-                <View className="rounded-xl bg-white/5 p-4">
-                  <Text className="font-gothamBold text-base text-black">Rewards Wallet</Text>
-                  <Text className="mt-1 font-gothamLight text-sm text-black">
-                    Current coins: {selectedUserRewardSummary?.rewardPoints ?? selectedUser.rewardPoints}
-                    {"  "}•{"  "}Lifetime: {selectedUserRewardSummary?.lifetimePoints ?? selectedUser.lifetimePoints}
-                  </Text>
-                  <View className="mt-4 gap-3">
-                    <View>
-                      <Text className="mb-2 font-gothamMedium text-sm text-black">
-                        Award preset earn action
-                      </Text>
-                      <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-                        <View className="flex-row gap-2">
-                          {earnRules.map((rule) => (
-                            <FilterChip
-                              key={rule.id}
-                              label={`${rule.label} (+${rule.points})`}
-                              active={selectedEarnRuleId === rule.id}
-                              variant="accent"
-                              onPress={() => setSelectedEarnRuleId(rule.id)}
-                            />
-                          ))}
-                        </View>
-                      </ScrollView>
-                    </View>
-                    {selectedEarnRule ? (
-                      <View className="rounded-xl bg-white/10 p-3">
-                        <Text className="font-gothamMedium text-sm text-black">
-                          {selectedEarnRule.label}
-                        </Text>
-                        <Text className="mt-1 font-gothamLight text-xs text-black">
-                          {selectedEarnRule.description}
-                        </Text>
-                      </View>
-                    ) : null}
-                    <PrimaryButton
-                      label={
-                        awardRewardMutation.isPending ? "Awarding..." : "Award selected action"
-                      }
-                      onPress={() => awardRewardMutation.mutate()}
-                      disabled={!selectedEarnRuleId}
-                    />
-                    <Field
-                      label="Adjust coins (+ or -)"
-                      value={adjustmentAmount}
-                      darkLabel
-                      onChangeText={setAdjustmentAmount}
-                    />
-                    <Field
-                      label="Adjustment note"
-                      value={adjustmentNote}
-                      darkLabel
-                      onChangeText={setAdjustmentNote}
-                      multiline
-                    />
-                    <PrimaryButton
-                      label={
-                        rewardAdjustmentMutation.isPending
-                          ? "Saving..."
-                          : "Apply coin adjustment"
-                      }
-                      onPress={() => rewardAdjustmentMutation.mutate()}
-                    />
-                  </View>
-                </View>
-                {userPullListQuery.isPending ? (
-                  <ActivityIndicator color="#000000" />
-                ) : (
-                  (userPullListQuery.data?.items ?? []).map((item: any) => (
-                    <RecordCard
-                      key={item._id}
-                      tone="highlight"
-                      title={item.title}
-                      subtitle={`${item.publisher} • ${item.seriesKey}`}
-                    />
-                  ))
-                )}
-                <SectionTitle
-                  title="Reward Activity"
-                  subtitle={`${rewardActivityQuery.data?.activity?.length ?? 0} recent entries`}
-                  darkText
-                />
-                {rewardActivityQuery.isPending ? (
-                  <ActivityIndicator color="#000000" />
-                ) : (
-                  (rewardActivityQuery.data?.activity ?? []).map((item: any) => (
-                    <RecordCard
-                      key={item.id}
-                      tone="highlight"
-                      title={`${item.type === "earn" ? "+" : "-"}${item.amount} • ${item.title}`}
-                      subtitle={`${item.description || "No note"} • ${formatRewardStatus(item.status)} • Balance ${item.balanceAfter} • ${formatAdminDate(item.createdAt)}`}
-                      actionLabel={
-                        item.type === "redeem" && item.status === "pending"
-                          ? rewardStatusMutation.isPending &&
-                            rewardStatusMutation.variables?.activityId === item.id
-                            ? "Saving..."
-                            : "Mark fulfilled"
-                          : undefined
-                      }
-                      onPressAction={
-                        item.type === "redeem" && item.status === "pending"
-                          ? () =>
-                              rewardStatusMutation.mutate({
-                                activityId: item.id,
-                                status: "fulfilled",
-                              })
-                          : undefined
-                      }
-                    />
-                  ))
-                )}
-              </View>
-            ) : null}
-          </View>
+          <AdminCustomersSection
+            customerSearch={customerSearch}
+            filteredUsers={filteredUsers}
+            selectedUserId={selectedUserId}
+            setCustomerSearch={setCustomerSearch}
+            setSelectedUserId={setSelectedUserId}
+            selectedUser={selectedUser}
+            selectedUserRewardSummary={selectedUserRewardSummary}
+            userPullListQuery={userPullListQuery}
+            rewardActivityQuery={rewardActivityQuery}
+            earnRules={earnRules}
+            selectedEarnRuleId={selectedEarnRuleId}
+            selectedEarnRule={selectedEarnRule}
+            setSelectedEarnRuleId={setSelectedEarnRuleId}
+            awardRewardPending={awardRewardMutation.isPending}
+            onAwardReward={() => awardRewardMutation.mutate()}
+            adjustmentAmount={adjustmentAmount}
+            adjustmentNote={adjustmentNote}
+            setAdjustmentAmount={setAdjustmentAmount}
+            setAdjustmentNote={setAdjustmentNote}
+            rewardAdjustmentPending={rewardAdjustmentMutation.isPending}
+            onAdjustRewards={() => rewardAdjustmentMutation.mutate()}
+            rewardStatusPendingId={rewardStatusMutation.variables?.activityId}
+            onMarkRewardFulfilled={(activityId) =>
+              rewardStatusMutation.mutate({
+                activityId,
+                status: "fulfilled",
+              })
+            }
+          />
         ) : null}
 
         {activeView === "titles" ? (
-          <View className="gap-4">
-            <SectionTitle
-              title="Most Subscribed Titles"
-              subtitle="This helps you spot what people consistently want reserved."
-              darkText
-            />
-            <Field
-              label="Search titles"
-              value={titleSearch}
-              darkLabel
-              onChangeText={setTitleSearch}
-            />
-            {filteredSubscriptions.map((item: any, index: number) => (
-              <RecordCard
-                key={item._id}
-                tone="highlight"
-                title={`${index + 1}. ${item.title}`}
-                subtitle={`${item.publisher} • ${item.subscriberCount} subscribers`}
-              />
-            ))}
-          </View>
+          <AdminTopTitlesSection
+            titleSearch={titleSearch}
+            filteredSubscriptions={filteredSubscriptions}
+            setTitleSearch={setTitleSearch}
+          />
         ) : null}
       </ScrollView>
     </View>
   );
 }
 
-function OverviewSection({ overview }: { overview: any }) {
-  return (
-    <View className="gap-4">
-      <View className="flex-row flex-wrap gap-3">
-        <StatCard label="Users" value={String(overview?.stats?.users ?? 0)} />
-        <StatCard label="Weekly Releases" value={String(overview?.stats?.weeklyReleases ?? 0)} />
-        <StatCard label="Rewards" value={String(overview?.stats?.rewards ?? 0)} />
-        <StatCard
-          label="Active Pulls"
-          value={String(overview?.stats?.activePullListSubscriptions ?? 0)}
-        />
-      </View>
 
-      <SectionTitle
-        title="Top Subscriptions"
-        subtitle="Fast read on what your store should keep stocked."
-        darkText
-      />
-      {(overview?.topSubscriptions ?? []).map((item: any) => (
-        <RecordCard
-          key={item._id}
-          title={item.title}
-          tone="highlight"
-          subtitle={`${item.publisher} • ${item.subscriberCount} subscribers`}
-        />
-      ))}
-    </View>
-  );
-}
-
-function SectionTitle({
-  title,
-  subtitle,
-  darkText,
-  lightPanel,
-}: {
-  title: string;
-  subtitle?: string;
-  darkText?: boolean;
-  lightPanel?: boolean;
-}) {
-  return (
-    <View>
-      <View className="self-start">
-        <Text
-          className={`font-gothamBold text-xl ${
-            darkText || lightPanel ? "text-black" : "text-white"
-          }`}
-        >
-          {title}
-        </Text>
-        <View className="mt-2 h-1.5 w-16 rounded-full bg-red-600" />
-      </View>
-      {subtitle ? (
-        <Text
-          className={`mt-3 font-gothamLight text-sm leading-5 ${
-            darkText || lightPanel ? "text-black" : "text-neutral-300"
-          }`}
-        >
-          {subtitle}
-        </Text>
-      ) : null}
-    </View>
-  );
-}
-
-function Field({
-  label,
-  value,
-  onChangeText,
-  keyboardType,
-  multiline,
-  darkLabel,
-}: {
-  label: string;
-  value: string;
-  onChangeText: (value: string) => void;
-  keyboardType?: "default" | "numeric" | "decimal-pad";
-  multiline?: boolean;
-  darkLabel?: boolean;
-}) {
-  return (
-    <View>
-      <Text
-        className={`mb-2 font-gothamMedium text-sm ${
-          darkLabel ? "text-black" : "text-neutral-200"
-        }`}
-      >
-        {label}
-      </Text>
-      <TextInput
-        value={value}
-        onChangeText={onChangeText}
-        keyboardType={keyboardType ?? "default"}
-        multiline={multiline}
-        placeholder={label}
-        placeholderTextColor="#737373"
-        className={`rounded-2xl border border-neutral-200 bg-neutral-50 px-4 py-3 text-neutral-900 ${
-          multiline ? "min-h-[96px]" : ""
-        }`}
-        textAlignVertical={multiline ? "top" : "center"}
-      />
-    </View>
-  );
-}
-
-function PrimaryButton({
-  label,
-  onPress,
-  disabled,
-}: {
-  label: string;
-  onPress: () => void;
-  disabled?: boolean;
-}) {
-  return (
-    <TouchableOpacity
-      onPress={onPress}
-      disabled={disabled}
-      className={`rounded-2xl px-4 py-3 shadow ${disabled ? "bg-red-400" : "bg-red-600"}`}
-    >
-      <Text className="text-center font-gothamMedium text-white">{label}</Text>
-    </TouchableOpacity>
-  );
-}
-
-function SecondaryButton({ label, onPress }: { label: string; onPress: () => void }) {
-  return (
-    <TouchableOpacity
-      onPress={onPress}
-      className="rounded-2xl border border-red-200 bg-white px-4 py-3"
-    >
-      <Text className="text-center font-gothamMedium text-red-700">{label}</Text>
-    </TouchableOpacity>
-  );
-}
-
-function RecordCard({
-  title,
-  subtitle,
-  tone,
-  actionLabel,
-  onPressAction,
-  secondaryActionLabel,
-  onPressSecondaryAction,
-}: {
-  title: string;
-  subtitle: string;
-  tone?: "default" | "highlight";
-  actionLabel?: string;
-  onPressAction?: () => void;
-  secondaryActionLabel?: string;
-  onPressSecondaryAction?: () => void;
-}) {
-  const effectiveTone =
-    tone ?? (actionLabel && secondaryActionLabel ? "highlight" : "default");
-
-  return (
-    <View
-      className={`rounded-2xl border p-4 ${
-        effectiveTone === "highlight"
-          ? "border-red-500 bg-red-600"
-          : "border-white/10 bg-white/10"
-      }`}
-    >
-      <View className="flex-row items-start justify-between gap-3">
-        <View className="flex-1">
-          <Text className="font-gothamBold text-base text-white">{title}</Text>
-          <Text
-            className={`mt-1 font-gothamLight text-sm ${
-              effectiveTone === "highlight" ? "text-red-100" : "text-neutral-300"
-            }`}
-          >
-            {subtitle}
-          </Text>
-        </View>
-
-        <View className="flex-row gap-2">
-          {actionLabel && onPressAction ? (
-            <TouchableOpacity
-              onPress={onPressAction}
-              className={`rounded-full px-3 py-2 ${
-                effectiveTone === "highlight"
-                  ? "border border-white/25 bg-white/15"
-                  : "border border-white/15 bg-white"
-              }`}
-            >
-              <Text
-                className={`font-gothamMedium text-xs ${
-                  effectiveTone === "highlight" ? "text-white" : "text-red-700"
-                }`}
-              >
-                {actionLabel}
-              </Text>
-            </TouchableOpacity>
-          ) : null}
-
-          {secondaryActionLabel && onPressSecondaryAction ? (
-            <TouchableOpacity
-              onPress={onPressSecondaryAction}
-              className={`rounded-full px-3 py-2 ${
-                effectiveTone === "highlight"
-                  ? "border border-white/20 bg-black/10"
-                  : "bg-red-600/20"
-              }`}
-            >
-              <Text
-                className={`font-gothamMedium text-xs ${
-                  effectiveTone === "highlight" ? "text-white" : "text-red-300"
-                }`}
-              >
-                {secondaryActionLabel}
-              </Text>
-            </TouchableOpacity>
-          ) : null}
-        </View>
-      </View>
-    </View>
-  );
-}
-
-function StatCard({ label, value }: { label: string; value: string }) {
-  return (
-    <View className="min-w-[46%] flex-1 rounded-2xl border border-white/10 bg-red-600 p-4 shadow">
-      <Text className="font-gothamBold text-3xl text-white">{value}</Text>
-      <Text className="mt-1 font-gothamLight text-xs uppercase tracking-[1px] text-red-100">
-        {label}
-      </Text>
-    </View>
-  );
-}
-
-function FilterChip({
-  label,
-  active,
-  variant,
-  onPress,
-}: {
-  label: string;
-  active: boolean;
-  variant?: "default" | "accent";
-  onPress: () => void;
-}) {
-  const isAccent = variant === "accent";
-
-  return (
-    <TouchableOpacity
-      onPress={onPress}
-      className={`rounded-full border px-4 py-2 ${
-        active
-          ? isAccent
-            ? "border-red-600 bg-red-600"
-            : "border-red-600 bg-red-600"
-          : isAccent
-            ? "border-red-300/90 bg-red-500/30"
-            : "border-white/15 bg-white/10"
-      }`}
-    >
-      <Text
-        className={`font-gothamMedium text-sm ${
-          active ? "text-white" : isAccent ? "text-white" : "text-neutral-300"
-        }`}
-      >
-        {label}
-      </Text>
-    </TouchableOpacity>
-  );
-}
-
-function formatAdminDate(value: string) {
-  const date = new Date(value);
-
-  if (Number.isNaN(date.getTime())) {
-    return "Unknown date";
-  }
-
-  return date.toLocaleDateString(undefined, {
-    month: "short",
-    day: "numeric",
-  });
-}
-
-function formatRewardStatus(status?: string) {
-  switch (status) {
-    case "pending":
-      return "Pending fulfillment";
-    case "fulfilled":
-      return "Fulfilled";
-    default:
-      return "Completed";
-  }
-}
