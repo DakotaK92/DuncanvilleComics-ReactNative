@@ -359,8 +359,8 @@ export default function AdminScreen() {
   ) {
     return (
       <View className="flex-1 items-center justify-center">
-        <ActivityIndicator color="#ffffff" />
-        <Text className="mt-3 font-gothamMedium text-white">Loading admin tools...</Text>
+        <ActivityIndicator color="#000000" />
+        <Text className="mt-3 font-gothamMedium text-black">Loading admin tools...</Text>
       </View>
     );
   }
@@ -368,7 +368,7 @@ export default function AdminScreen() {
   if (isForbidden) {
     return (
       <View className="flex-1 items-center justify-center px-8">
-        <Text className="font-gothamBold text-2xl text-white">Admin access required</Text>
+        <Text className="font-gothamBold text-2xl text-black">Admin access required</Text>
         <Text className="mt-3 text-center font-gothamLight text-sm leading-5 text-black">
           Add your account email to `ADMIN_EMAILS` in the backend environment if you want to lock
           this down outside local development.
@@ -380,7 +380,7 @@ export default function AdminScreen() {
   return (
     <View className="flex-1">
       {notice ? (
-        <View className="mx-4 mt-4 rounded-xl bg-emerald-600 px-4 py-3">
+        <View className="mx-4 mt-4 rounded-2xl border border-emerald-400/40 bg-emerald-600 px-4 py-3 shadow">
           <Text className="text-center font-gothamMedium text-sm text-white">{notice}</Text>
         </View>
       ) : null}
@@ -405,13 +405,15 @@ export default function AdminScreen() {
             <TouchableOpacity
               key={key}
               onPress={() => setActiveView(key as AdminView)}
-              className={`rounded-full px-4 py-2 ${
-                activeView === key ? "bg-red-600" : "bg-white"
+              className={`rounded-full border px-4 py-2 ${
+                activeView === key
+                  ? "border-red-600 bg-red-600"
+                  : "border-white/15 bg-white/95"
               }`}
             >
               <Text
                 className={`font-gothamMedium text-sm ${
-                  activeView === key ? "text-white" : "text-red-600"
+                  activeView === key ? "text-white" : "text-red-700"
                 }`}
               >
                 {label}
@@ -427,22 +429,26 @@ export default function AdminScreen() {
             <SectionTitle
               title={editingReleaseId ? "Edit Weekly Release" : "Add Weekly Release"}
               subtitle="Create, update, or remove the books customers can add to their pull lists."
+              lightPanel
             />
             <View className="gap-3">
               <Field
                 label="Title"
                 value={releaseForm.title}
+                darkLabel
                 onChangeText={(value) => setReleaseForm((current) => ({ ...current, title: value }))}
               />
               <Field
                 label="Issue"
                 value={releaseForm.issue}
                 keyboardType="numeric"
+                darkLabel
                 onChangeText={(value) => setReleaseForm((current) => ({ ...current, issue: value }))}
               />
               <Field
                 label="Publisher"
                 value={releaseForm.publisher}
+                darkLabel
                 onChangeText={(value) =>
                   setReleaseForm((current) => ({ ...current, publisher: value }))
                 }
@@ -451,11 +457,13 @@ export default function AdminScreen() {
                 label="Price"
                 value={releaseForm.price}
                 keyboardType="decimal-pad"
+                darkLabel
                 onChangeText={(value) => setReleaseForm((current) => ({ ...current, price: value }))}
               />
               <Field
                 label="Release Date (YYYY-MM-DD)"
                 value={releaseForm.releaseDate}
+                darkLabel
                 onChangeText={(value) =>
                   setReleaseForm((current) => ({ ...current, releaseDate: value }))
                 }
@@ -463,6 +471,7 @@ export default function AdminScreen() {
               <Field
                 label="Series Key"
                 value={releaseForm.seriesKey}
+                darkLabel
                 onChangeText={(value) =>
                   setReleaseForm((current) => ({ ...current, seriesKey: value }))
                 }
@@ -470,6 +479,7 @@ export default function AdminScreen() {
               <Field
                 label="Cover Image URL"
                 value={releaseForm.coverImageUrl}
+                darkLabel
                 onChangeText={(value) =>
                   setReleaseForm((current) => ({ ...current, coverImageUrl: value }))
                 }
@@ -496,15 +506,22 @@ export default function AdminScreen() {
                 />
               )}
             </View>
-            <Field label="Search releases" value={releaseSearch} onChangeText={setReleaseSearch} />
+            <Field
+              label="Search releases"
+              value={releaseSearch}
+              darkLabel
+              onChangeText={setReleaseSearch}
+            />
             <SectionTitle
               title="Current Weekly Releases"
               subtitle={`${filteredReleases.length} matching books`}
+              lightPanel
             />
             {filteredReleases.map((release: any) => (
               <RecordCard
                 key={release.id}
                 title={`${release.title} #${release.issue}`}
+                tone="highlight"
                 subtitle={`${release.publisher} • $${Number(release.price).toFixed(2)} • ${String(
                   release.releaseDate
                 ).slice(0, 10)}`}
@@ -543,16 +560,19 @@ export default function AdminScreen() {
             <SectionTitle
               title={editingRewardId ? "Edit Reward" : "Add Reward"}
               subtitle="Keep your reward catalog current and easy to redeem."
+              lightPanel
             />
             <View className="gap-3">
               <Field
                 label="Title"
                 value={rewardForm.title}
+                darkLabel
                 onChangeText={(value) => setRewardForm((current) => ({ ...current, title: value }))}
               />
               <Field
                 label="Description"
                 value={rewardForm.description}
+                darkLabel
                 onChangeText={(value) =>
                   setRewardForm((current) => ({ ...current, description: value }))
                 }
@@ -562,11 +582,13 @@ export default function AdminScreen() {
                 label="Cost"
                 value={rewardForm.cost}
                 keyboardType="numeric"
+                darkLabel
                 onChangeText={(value) => setRewardForm((current) => ({ ...current, cost: value }))}
               />
               <Field
                 label="Code"
                 value={rewardForm.code}
+                darkLabel
                 onChangeText={(value) => setRewardForm((current) => ({ ...current, code: value }))}
               />
               <View className="flex-row items-center justify-between rounded-xl bg-white/5 px-4 py-3">
@@ -608,7 +630,12 @@ export default function AdminScreen() {
                 />
               )}
             </View>
-            <Field label="Search rewards" value={rewardSearch} onChangeText={setRewardSearch} />
+            <Field
+              label="Search rewards"
+              value={rewardSearch}
+              darkLabel
+              onChangeText={setRewardSearch}
+            />
             <View className="flex-row gap-2">
               <FilterChip
                 label="All"
@@ -629,6 +656,7 @@ export default function AdminScreen() {
             <SectionTitle
               title="Reward Catalog"
               subtitle={`${filteredRewards.length} matching rewards`}
+              lightPanel
             />
             {filteredRewards.map((reward: any) => (
               <RecordCard
@@ -670,15 +698,18 @@ export default function AdminScreen() {
             <SectionTitle
               title="Customers"
               subtitle="Inspect pull lists, reward balances, and activity by customer."
+              darkText
             />
             <Field
               label="Search customers"
               value={customerSearch}
+              darkLabel
               onChangeText={setCustomerSearch}
             />
             {filteredUsers.map((user: any) => (
               <RecordCard
                 key={user._id}
+                tone="highlight"
                 title={
                   user.email ||
                   `${user.firstName || ""} ${user.lastName || ""}`.trim() ||
@@ -695,16 +726,17 @@ export default function AdminScreen() {
                 <SectionTitle
                   title={`Pull List • ${selectedUser.email || "Customer"}`}
                   subtitle={`${userPullListQuery.data?.items?.length ?? 0} active titles`}
+                  darkText
                 />
                 <View className="rounded-xl bg-white/5 p-4">
-                  <Text className="font-gothamBold text-base text-white">Rewards Wallet</Text>
-                  <Text className="mt-1 font-gothamLight text-sm text-neutral-300">
+                  <Text className="font-gothamBold text-base text-black">Rewards Wallet</Text>
+                  <Text className="mt-1 font-gothamLight text-sm text-black">
                     Current coins: {selectedUserRewardSummary?.rewardPoints ?? selectedUser.rewardPoints}
                     {"  "}•{"  "}Lifetime: {selectedUserRewardSummary?.lifetimePoints ?? selectedUser.lifetimePoints}
                   </Text>
                   <View className="mt-4 gap-3">
                     <View>
-                      <Text className="mb-2 font-gothamMedium text-sm text-neutral-200">
+                      <Text className="mb-2 font-gothamMedium text-sm text-black">
                         Award preset earn action
                       </Text>
                       <ScrollView horizontal showsHorizontalScrollIndicator={false}>
@@ -714,6 +746,7 @@ export default function AdminScreen() {
                               key={rule.id}
                               label={`${rule.label} (+${rule.points})`}
                               active={selectedEarnRuleId === rule.id}
+                              variant="accent"
                               onPress={() => setSelectedEarnRuleId(rule.id)}
                             />
                           ))}
@@ -722,10 +755,10 @@ export default function AdminScreen() {
                     </View>
                     {selectedEarnRule ? (
                       <View className="rounded-xl bg-white/10 p-3">
-                        <Text className="font-gothamMedium text-sm text-white">
+                        <Text className="font-gothamMedium text-sm text-black">
                           {selectedEarnRule.label}
                         </Text>
-                        <Text className="mt-1 font-gothamLight text-xs text-neutral-300">
+                        <Text className="mt-1 font-gothamLight text-xs text-black">
                           {selectedEarnRule.description}
                         </Text>
                       </View>
@@ -740,11 +773,13 @@ export default function AdminScreen() {
                     <Field
                       label="Adjust coins (+ or -)"
                       value={adjustmentAmount}
+                      darkLabel
                       onChangeText={setAdjustmentAmount}
                     />
                     <Field
                       label="Adjustment note"
                       value={adjustmentNote}
+                      darkLabel
                       onChangeText={setAdjustmentNote}
                       multiline
                     />
@@ -759,11 +794,12 @@ export default function AdminScreen() {
                   </View>
                 </View>
                 {userPullListQuery.isPending ? (
-                  <ActivityIndicator color="#ffffff" />
+                  <ActivityIndicator color="#000000" />
                 ) : (
                   (userPullListQuery.data?.items ?? []).map((item: any) => (
                     <RecordCard
                       key={item._id}
+                      tone="highlight"
                       title={item.title}
                       subtitle={`${item.publisher} • ${item.seriesKey}`}
                     />
@@ -772,13 +808,15 @@ export default function AdminScreen() {
                 <SectionTitle
                   title="Reward Activity"
                   subtitle={`${rewardActivityQuery.data?.activity?.length ?? 0} recent entries`}
+                  darkText
                 />
                 {rewardActivityQuery.isPending ? (
-                  <ActivityIndicator color="#ffffff" />
+                  <ActivityIndicator color="#000000" />
                 ) : (
                   (rewardActivityQuery.data?.activity ?? []).map((item: any) => (
                     <RecordCard
                       key={item.id}
+                      tone="highlight"
                       title={`${item.type === "earn" ? "+" : "-"}${item.amount} • ${item.title}`}
                       subtitle={`${item.description || "No note"} • ${formatRewardStatus(item.status)} • Balance ${item.balanceAfter} • ${formatAdminDate(item.createdAt)}`}
                       actionLabel={
@@ -811,11 +849,18 @@ export default function AdminScreen() {
             <SectionTitle
               title="Most Subscribed Titles"
               subtitle="This helps you spot what people consistently want reserved."
+              darkText
             />
-            <Field label="Search titles" value={titleSearch} onChangeText={setTitleSearch} />
+            <Field
+              label="Search titles"
+              value={titleSearch}
+              darkLabel
+              onChangeText={setTitleSearch}
+            />
             {filteredSubscriptions.map((item: any, index: number) => (
               <RecordCard
                 key={item._id}
+                tone="highlight"
                 title={`${index + 1}. ${item.title}`}
                 subtitle={`${item.publisher} • ${item.subscriberCount} subscribers`}
               />
@@ -843,11 +888,13 @@ function OverviewSection({ overview }: { overview: any }) {
       <SectionTitle
         title="Top Subscriptions"
         subtitle="Fast read on what your store should keep stocked."
+        darkText
       />
       {(overview?.topSubscriptions ?? []).map((item: any) => (
         <RecordCard
           key={item._id}
           title={item.title}
+          tone="highlight"
           subtitle={`${item.publisher} • ${item.subscriberCount} subscribers`}
         />
       ))}
@@ -855,12 +902,37 @@ function OverviewSection({ overview }: { overview: any }) {
   );
 }
 
-function SectionTitle({ title, subtitle }: { title: string; subtitle?: string }) {
+function SectionTitle({
+  title,
+  subtitle,
+  darkText,
+  lightPanel,
+}: {
+  title: string;
+  subtitle?: string;
+  darkText?: boolean;
+  lightPanel?: boolean;
+}) {
   return (
     <View>
-      <Text className="font-gothamBold text-xl text-black">{title}</Text>
+      <View className="self-start">
+        <Text
+          className={`font-gothamBold text-xl ${
+            darkText || lightPanel ? "text-black" : "text-white"
+          }`}
+        >
+          {title}
+        </Text>
+        <View className="mt-2 h-1.5 w-16 rounded-full bg-red-600" />
+      </View>
       {subtitle ? (
-        <Text className="mt-1 font-gothamLight text-sm text-black">{subtitle}</Text>
+        <Text
+          className={`mt-3 font-gothamLight text-sm leading-5 ${
+            darkText || lightPanel ? "text-black" : "text-neutral-300"
+          }`}
+        >
+          {subtitle}
+        </Text>
       ) : null}
     </View>
   );
@@ -872,16 +944,24 @@ function Field({
   onChangeText,
   keyboardType,
   multiline,
+  darkLabel,
 }: {
   label: string;
   value: string;
   onChangeText: (value: string) => void;
   keyboardType?: "default" | "numeric" | "decimal-pad";
   multiline?: boolean;
+  darkLabel?: boolean;
 }) {
   return (
     <View>
-      <Text className="mb-2 font-gothamMedium text-sm text-neutral-200">{label}</Text>
+      <Text
+        className={`mb-2 font-gothamMedium text-sm ${
+          darkLabel ? "text-black" : "text-neutral-200"
+        }`}
+      >
+        {label}
+      </Text>
       <TextInput
         value={value}
         onChangeText={onChangeText}
@@ -889,7 +969,7 @@ function Field({
         multiline={multiline}
         placeholder={label}
         placeholderTextColor="#737373"
-        className={`rounded-xl bg-white px-4 py-3 text-neutral-900 ${
+        className={`rounded-2xl border border-neutral-200 bg-neutral-50 px-4 py-3 text-neutral-900 ${
           multiline ? "min-h-[96px]" : ""
         }`}
         textAlignVertical={multiline ? "top" : "center"}
@@ -911,17 +991,20 @@ function PrimaryButton({
     <TouchableOpacity
       onPress={onPress}
       disabled={disabled}
-      className={`rounded-xl px-4 py-3 ${disabled ? "bg-red-400" : "bg-red-600"}`}
+      className={`rounded-2xl px-4 py-3 shadow ${disabled ? "bg-red-400" : "bg-red-600"}`}
     >
-      <Text className="font-gothamMedium text-white">{label}</Text>
+      <Text className="text-center font-gothamMedium text-white">{label}</Text>
     </TouchableOpacity>
   );
 }
 
 function SecondaryButton({ label, onPress }: { label: string; onPress: () => void }) {
   return (
-    <TouchableOpacity onPress={onPress} className="rounded-xl border border-white/20 px-4 py-3">
-      <Text className="font-gothamMedium text-neutral-200">{label}</Text>
+    <TouchableOpacity
+      onPress={onPress}
+      className="rounded-2xl border border-red-200 bg-white px-4 py-3"
+    >
+      <Text className="text-center font-gothamMedium text-red-700">{label}</Text>
     </TouchableOpacity>
   );
 }
@@ -929,6 +1012,7 @@ function SecondaryButton({ label, onPress }: { label: string; onPress: () => voi
 function RecordCard({
   title,
   subtitle,
+  tone,
   actionLabel,
   onPressAction,
   secondaryActionLabel,
@@ -936,35 +1020,69 @@ function RecordCard({
 }: {
   title: string;
   subtitle: string;
+  tone?: "default" | "highlight";
   actionLabel?: string;
   onPressAction?: () => void;
   secondaryActionLabel?: string;
   onPressSecondaryAction?: () => void;
 }) {
+  const effectiveTone =
+    tone ?? (actionLabel && secondaryActionLabel ? "highlight" : "default");
+
   return (
-    <View className="rounded-xl bg-white/5 p-4">
+    <View
+      className={`rounded-2xl border p-4 ${
+        effectiveTone === "highlight"
+          ? "border-red-500 bg-red-600"
+          : "border-white/10 bg-white/10"
+      }`}
+    >
       <View className="flex-row items-start justify-between gap-3">
         <View className="flex-1">
           <Text className="font-gothamBold text-base text-white">{title}</Text>
-          <Text className="mt-1 font-gothamLight text-sm text-neutral-300">{subtitle}</Text>
+          <Text
+            className={`mt-1 font-gothamLight text-sm ${
+              effectiveTone === "highlight" ? "text-red-100" : "text-neutral-300"
+            }`}
+          >
+            {subtitle}
+          </Text>
         </View>
 
         <View className="flex-row gap-2">
           {actionLabel && onPressAction ? (
             <TouchableOpacity
               onPress={onPressAction}
-              className="rounded-full bg-white/10 px-3 py-2"
+              className={`rounded-full px-3 py-2 ${
+                effectiveTone === "highlight"
+                  ? "border border-white/25 bg-white/15"
+                  : "border border-white/15 bg-white"
+              }`}
             >
-              <Text className="font-gothamMedium text-xs text-white">{actionLabel}</Text>
+              <Text
+                className={`font-gothamMedium text-xs ${
+                  effectiveTone === "highlight" ? "text-white" : "text-red-700"
+                }`}
+              >
+                {actionLabel}
+              </Text>
             </TouchableOpacity>
           ) : null}
 
           {secondaryActionLabel && onPressSecondaryAction ? (
             <TouchableOpacity
               onPress={onPressSecondaryAction}
-              className="rounded-full bg-red-600/20 px-3 py-2"
+              className={`rounded-full px-3 py-2 ${
+                effectiveTone === "highlight"
+                  ? "border border-white/20 bg-black/10"
+                  : "bg-red-600/20"
+              }`}
             >
-              <Text className="font-gothamMedium text-xs text-red-300">
+              <Text
+                className={`font-gothamMedium text-xs ${
+                  effectiveTone === "highlight" ? "text-white" : "text-red-300"
+                }`}
+              >
                 {secondaryActionLabel}
               </Text>
             </TouchableOpacity>
@@ -977,9 +1095,11 @@ function RecordCard({
 
 function StatCard({ label, value }: { label: string; value: string }) {
   return (
-    <View className="min-w-[46%] flex-1 rounded-xl bg-white/5 p-4">
+    <View className="min-w-[46%] flex-1 rounded-2xl border border-white/10 bg-red-600 p-4 shadow">
       <Text className="font-gothamBold text-3xl text-white">{value}</Text>
-      <Text className="mt-1 font-gothamLight text-xs text-neutral-300">{label}</Text>
+      <Text className="mt-1 font-gothamLight text-xs uppercase tracking-[1px] text-red-100">
+        {label}
+      </Text>
     </View>
   );
 }
@@ -987,19 +1107,33 @@ function StatCard({ label, value }: { label: string; value: string }) {
 function FilterChip({
   label,
   active,
+  variant,
   onPress,
 }: {
   label: string;
   active: boolean;
+  variant?: "default" | "accent";
   onPress: () => void;
 }) {
+  const isAccent = variant === "accent";
+
   return (
     <TouchableOpacity
       onPress={onPress}
-      className={`rounded-full px-4 py-2 ${active ? "bg-red-600" : "bg-white/10"}`}
+      className={`rounded-full border px-4 py-2 ${
+        active
+          ? isAccent
+            ? "border-red-600 bg-red-600"
+            : "border-red-600 bg-red-600"
+          : isAccent
+            ? "border-red-300/90 bg-red-500/30"
+            : "border-white/15 bg-white/10"
+      }`}
     >
       <Text
-        className={`font-gothamMedium text-sm ${active ? "text-white" : "text-neutral-300"}`}
+        className={`font-gothamMedium text-sm ${
+          active ? "text-white" : isAccent ? "text-white" : "text-neutral-300"
+        }`}
       >
         {label}
       </Text>
