@@ -1,42 +1,16 @@
-import { View, Text, FlatList, Pressable, Alert } from "react-native";
+import { View, Text, FlatList, Pressable, Alert, ActivityIndicator } from "react-native";
 import { useMemo, useState } from "react";
 import { Ionicons } from "@expo/vector-icons";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { getApiErrorMessage, rewardsApi, useApiClient } from "../utils/api";
+import type {
+  Reward,
+  RewardActivityItem,
+  RewardBadge,
+  RewardEarnRule,
+} from "../utils/apiTypes";
 
 type TabKey = "overview" | "earn" | "redeem" | "badges";
-
-type Reward = {
-  _id?: string;
-  id?: string;
-  code?: string;
-  title: string;
-  cost: number;
-  description?: string;
-};
-
-type BadgeType = {
-  title: string;
-  unlocked?: boolean;
-};
-
-type EarnRule = {
-  id: string;
-  icon: string;
-  label: string;
-  points: number;
-  description?: string;
-};
-
-type ActivityItem = {
-  id: string;
-  type: "earn" | "redeem";
-  amount: number;
-  balanceAfter: number;
-  title: string;
-  description?: string;
-  createdAt: string;
-};
 
 export default function RewardsScreen() {
   const [activeTab, setActiveTab] = useState<TabKey>("overview");
@@ -72,15 +46,15 @@ export default function RewardsScreen() {
     () => rewardsQuery.data?.rewards ?? [],
     [rewardsQuery.data]
   );
-  const badges = useMemo<BadgeType[]>(
+  const badges = useMemo<RewardBadge[]>(
     () => rewardsQuery.data?.summary?.badges ?? [],
     [rewardsQuery.data]
   );
-  const earnRules = useMemo<EarnRule[]>(
+  const earnRules = useMemo<RewardEarnRule[]>(
     () => rewardsQuery.data?.earnRules ?? [],
     [rewardsQuery.data]
   );
-  const recentActivity = useMemo<ActivityItem[]>(
+  const recentActivity = useMemo<RewardActivityItem[]>(
     () => rewardsQuery.data?.summary?.recentActivity ?? [],
     [rewardsQuery.data]
   );
@@ -116,6 +90,7 @@ export default function RewardsScreen() {
       <View className="flex-1">
         {rewardsQuery.isPending ? (
           <View className="flex-1 items-center justify-center px-6">
+            <ActivityIndicator color="#000000" />
             <Text className="font-gothamMedium text-base text-black">
               Loading rewards...
             </Text>
@@ -187,7 +162,7 @@ function Overview({
   coins: number;
   lifetimePoints: number;
   nextReward: { title: string; cost: number; remainingCoins: number } | null;
-  recentActivity: ActivityItem[];
+  recentActivity: RewardActivityItem[];
 }) {
   const progress = nextReward
     ? Math.max(
@@ -303,7 +278,7 @@ function StatCard({ label, value }: { label: string; value: string }) {
   );
 }
 
-function Earn({ earnRules }: { earnRules: EarnRule[] }) {
+function Earn({ earnRules }: { earnRules: RewardEarnRule[] }) {
   return (
     <FlatList
       data={earnRules}
@@ -377,7 +352,7 @@ function Redeem({
   );
 }
 
-function Badges({ badges }: { badges: BadgeType[] }) {
+function Badges({ badges }: { badges: RewardBadge[] }) {
   return (
     <FlatList
       data={badges}

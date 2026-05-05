@@ -1,4 +1,5 @@
-import { FlatList, Image, ImageBackground, Pressable, Text, View } from "react-native";
+import { FlatList, ImageBackground, Pressable, Text, View } from "react-native";
+import { Image } from "expo-image";
 import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
 import { comics, Comic } from "../data/comics";
@@ -105,7 +106,13 @@ const ComicCard = ({ comic }: { comic: Comic }) => {
       onPress={() => router.push("/category/back-issues")}
       className="mb-3 flex-1 overflow-hidden rounded-2xl bg-white"
     >
-      <Image source={comic.image} className="h-52 w-full" resizeMode="cover" />
+      <Image
+        source={comic.image}
+        className="h-52 w-full bg-neutral-200"
+        contentFit="cover"
+        cachePolicy="memory-disk"
+        transition={180}
+      />
 
       <View className="p-4">
         <View className="flex-row flex-wrap gap-2">

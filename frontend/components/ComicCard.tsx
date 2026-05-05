@@ -1,11 +1,6 @@
-import { View, Text, Image, TouchableOpacity } from "react-native";
-import { ComicBook } from "../data/categoryComics";
-
-type RemoteComicBook = ComicBook & {
-  coverImageUrl?: string;
-  hasNewIssue?: boolean;
-  notes?: string;
-};
+import { View, Text, TouchableOpacity } from "react-native";
+import { Image } from "expo-image";
+import type { RemoteComicBook } from "../utils/apiTypes";
 
 export function ComicCard({
   comic,
@@ -31,7 +26,13 @@ export function ComicCard({
   return (
     <View className="mb-4 overflow-hidden rounded-xl bg-white shadow">
       <View className="flex-row">
-        <Image source={imageSource} className="h-40 w-28" resizeMode="cover" />
+        <Image
+          source={imageSource}
+          className="h-40 w-28 bg-neutral-200"
+          contentFit="cover"
+          cachePolicy="memory-disk"
+          transition={180}
+        />
 
         <View className="flex-1 p-4">
           <View className="flex-row items-start justify-between gap-3">

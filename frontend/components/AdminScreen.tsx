@@ -384,6 +384,15 @@ export default function AdminScreen() {
         contentContainerStyle={{ padding: 16, paddingBottom: 36 }}
         showsVerticalScrollIndicator={false}
       >
+        <View className="mb-4">
+          <Text className="h-12 rounded bg-red-600 px-4 text-center font-gothamBold text-xl leading-[48px] text-white">
+            STORE ADMIN
+          </Text>
+          <View className="mt-3 self-start rounded-full bg-emerald-600/90 px-3 py-2">
+            <Text className="font-gothamMedium text-xs text-white">Admin access active</Text>
+          </View>
+        </View>
+
         <ScrollView
           horizontal
           showsHorizontalScrollIndicator={false}
