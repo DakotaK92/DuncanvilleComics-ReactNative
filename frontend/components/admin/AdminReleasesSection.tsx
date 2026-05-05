@@ -131,7 +131,7 @@ export function AdminReleasesSection({
           key={release.id}
           title={`${release.title} #${release.issue}`}
           tone="highlight"
-          subtitle={`${release.publisher} â€¢ $${Number(release.price).toFixed(2)} â€¢ ${String(
+          subtitle={`${release.publisher} | $${Number(release.price).toFixed(2)} | ${String(
             release.releaseDate
           ).slice(0, 10)}`}
           actionLabel="Edit"

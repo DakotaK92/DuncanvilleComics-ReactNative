@@ -144,8 +144,8 @@ export function AdminRewardsSection({
       {filteredRewards.map((reward: AdminReward) => (
         <RecordCard
           key={reward.id}
-          title={`${reward.title} â€¢ ${reward.cost} coins`}
-          subtitle={`${reward.active ? "Active" : "Inactive"} â€¢ ${
+          title={`${reward.title} | ${reward.cost} coins`}
+          subtitle={`${reward.active ? "Active" : "Inactive"} | ${
             reward.description || "No description"
           }`}
           actionLabel="Edit"

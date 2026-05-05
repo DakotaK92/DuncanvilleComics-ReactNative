@@ -88,7 +88,7 @@ export function AdminCustomersSection({
           title={
             user.email || `${user.firstName || ""} ${user.lastName || ""}`.trim() || "Unnamed user"
           }
-          subtitle={`${user.pullListCount} pull-list titles â€¢ ${user.rewardPoints} coins`}
+          subtitle={`${user.pullListCount} pull-list titles | ${user.rewardPoints} coins`}
           actionLabel={selectedUserId === user._id ? "Selected" : "Open"}
           onPressAction={() => setSelectedUserId(user._id)}
         />
@@ -97,7 +97,7 @@ export function AdminCustomersSection({
       {selectedUser ? (
         <View className="gap-3 pt-2">
           <SectionTitle
-            title={`Pull List â€¢ ${selectedUser.email || "Customer"}`}
+            title={`Pull List | ${selectedUser.email || "Customer"}`}
             subtitle={`${userPullListQuery.data?.items?.length ?? 0} active titles`}
             darkText
           />
@@ -105,7 +105,7 @@ export function AdminCustomersSection({
             <Text className="font-gothamBold text-base text-black">Rewards Wallet</Text>
             <Text className="mt-1 font-gothamLight text-sm text-black">
               Current coins: {selectedUserRewardSummary?.rewardPoints ?? selectedUser.rewardPoints}
-              {"  "}â€¢{"  "}Lifetime:{" "}
+              {"  "} | {"  "}Lifetime:{" "}
               {selectedUserRewardSummary?.lifetimePoints ?? selectedUser.lifetimePoints}
             </Text>
             <View className="mt-4 gap-3">
@@ -169,7 +169,7 @@ export function AdminCustomersSection({
                 key={item._id}
                 tone="highlight"
                 title={item.title}
-                subtitle={`${item.publisher} â€¢ ${item.seriesKey}`}
+                subtitle={`${item.publisher} | ${item.seriesKey}`}
               />
             ))
           )}
@@ -185,10 +185,10 @@ export function AdminCustomersSection({
               <RecordCard
                 key={item.id}
                 tone="highlight"
-                title={`${item.type === "earn" ? "+" : "-"}${item.amount} â€¢ ${item.title}`}
-                subtitle={`${item.description || "No note"} â€¢ ${formatRewardStatus(
+                title={`${item.type === "earn" ? "+" : "-"}${item.amount} | ${item.title}`}
+                subtitle={`${item.description || "No note"} | ${formatRewardStatus(
                   item.status
-                )} â€¢ Balance ${item.balanceAfter} â€¢ ${formatAdminDate(item.createdAt)}`}
+                )} | Balance ${item.balanceAfter} | ${formatAdminDate(item.createdAt)}`}
                 actionLabel={
                   item.type === "redeem" && item.status === "pending"
                     ? rewardStatusPendingId === item.id

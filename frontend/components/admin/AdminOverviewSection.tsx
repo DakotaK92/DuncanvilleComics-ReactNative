@@ -26,7 +26,7 @@ export function AdminOverviewSection({ overview }: { overview: AdminOverview | u
           key={item._id}
           title={item.title}
           tone="highlight"
-          subtitle={`${item.publisher} â€¢ ${item.subscriberCount} subscribers`}
+          subtitle={`${item.publisher} | ${item.subscriberCount} subscribers`}
         />
       ))}
     </View>

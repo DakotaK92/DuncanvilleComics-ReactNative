@@ -31,7 +31,7 @@ export function AdminTopTitlesSection({
           key={item._id}
           tone="highlight"
           title={`${index + 1}. ${item.title}`}
-          subtitle={`${item.publisher} â€¢ ${item.subscriberCount} subscribers`}
+          subtitle={`${item.publisher} | ${item.subscriberCount} subscribers`}
         />
       ))}
     </View>
