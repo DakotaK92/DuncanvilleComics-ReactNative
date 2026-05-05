@@ -9,11 +9,11 @@ const Rewards = () => {
   return (
     <SafeAreaView className="flex-1 bg-transparent" edges={['top']}>
       {/* Header Section */}
-      <View className="flex-row justify-between items-center px-4 py-3 border-b border-gray-200">
-        <View className="w-10"/>
+      <View className="flex-row items-center justify-between px-4 py-3 border-b border-gray-200">
+        <View className="h-10 w-10" />
         <Image
           source={require("../../assets/icons/logo.png")}
-          className="w-24 h-10 items-center"
+          className="h-10 w-24 items-center"
         />
         <SignOutButton />
       </View>
