@@ -116,7 +116,7 @@ export default function RewardsScreen() {
       <View className="flex-1">
         {rewardsQuery.isPending ? (
           <View className="flex-1 items-center justify-center px-6">
-            <Text className="font-gothamMedium text-base text-white">
+            <Text className="font-gothamMedium text-base text-black">
               Loading rewards...
             </Text>
           </View>
