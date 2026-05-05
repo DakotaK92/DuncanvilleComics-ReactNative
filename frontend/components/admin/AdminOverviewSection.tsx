@@ -1,8 +1,9 @@
 import { View } from "react-native";
 
 import { RecordCard, SectionTitle, StatCard } from "./AdminUi";
+import type { AdminOverview, AdminSubscriptionSummary } from "./types";
 
-export function AdminOverviewSection({ overview }: { overview: any }) {
+export function AdminOverviewSection({ overview }: { overview: AdminOverview | undefined }) {
   return (
     <View className="gap-4">
       <View className="flex-row flex-wrap gap-3">
@@ -20,7 +21,7 @@ export function AdminOverviewSection({ overview }: { overview: any }) {
         subtitle="Fast read on what your store should keep stocked."
         darkText
       />
-      {(overview?.topSubscriptions ?? []).map((item: any) => (
+      {(overview?.topSubscriptions ?? []).map((item: AdminSubscriptionSummary) => (
         <RecordCard
           key={item._id}
           title={item.title}

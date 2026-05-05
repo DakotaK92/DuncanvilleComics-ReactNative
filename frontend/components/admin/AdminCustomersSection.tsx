@@ -10,13 +10,14 @@ import {
   formatAdminDate,
   formatRewardStatus,
 } from "./AdminUi";
-
-type EarnRule = {
-  id: string;
-  label: string;
-  points: number;
-  description?: string;
-};
+import type {
+  AdminPullListItem,
+  AdminRewardActivityItem,
+  AdminRewardActivityResponse,
+  AdminRewardActivityUserSummary,
+  AdminUser,
+  EarnRule,
+} from "./types";
 
 export function AdminCustomersSection({
   customerSearch,
@@ -44,14 +45,14 @@ export function AdminCustomersSection({
   onMarkRewardFulfilled,
 }: {
   customerSearch: string;
-  filteredUsers: any[];
+  filteredUsers: AdminUser[];
   selectedUserId: string | null;
   setCustomerSearch: Dispatch<SetStateAction<string>>;
   setSelectedUserId: Dispatch<SetStateAction<string | null>>;
-  selectedUser: any;
-  selectedUserRewardSummary: any;
-  userPullListQuery: { isPending: boolean; data?: { items?: any[] } };
-  rewardActivityQuery: { isPending: boolean; data?: { activity?: any[] } };
+  selectedUser: AdminUser | undefined;
+  selectedUserRewardSummary: AdminRewardActivityUserSummary | undefined;
+  userPullListQuery: { isPending: boolean; data?: { items?: AdminPullListItem[] } };
+  rewardActivityQuery: { isPending: boolean; data?: AdminRewardActivityResponse };
   earnRules: EarnRule[];
   selectedEarnRuleId: string;
   selectedEarnRule: EarnRule | null;
@@ -80,7 +81,7 @@ export function AdminCustomersSection({
         darkLabel
         onChangeText={setCustomerSearch}
       />
-      {filteredUsers.map((user: any) => (
+      {filteredUsers.map((user: AdminUser) => (
         <RecordCard
           key={user._id}
           tone="highlight"
@@ -163,7 +164,7 @@ export function AdminCustomersSection({
           {userPullListQuery.isPending ? (
             <ActivityIndicator color="#000000" />
           ) : (
-            (userPullListQuery.data?.items ?? []).map((item: any) => (
+            (userPullListQuery.data?.items ?? []).map((item: AdminPullListItem) => (
               <RecordCard
                 key={item._id}
                 tone="highlight"
@@ -180,7 +181,7 @@ export function AdminCustomersSection({
           {rewardActivityQuery.isPending ? (
             <ActivityIndicator color="#000000" />
           ) : (
-            (rewardActivityQuery.data?.activity ?? []).map((item: any) => (
+            (rewardActivityQuery.data?.activity ?? []).map((item: AdminRewardActivityItem) => (
               <RecordCard
                 key={item.id}
                 tone="highlight"

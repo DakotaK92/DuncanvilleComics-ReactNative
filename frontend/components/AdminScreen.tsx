@@ -13,34 +13,21 @@ import { AdminOverviewSection } from "./admin/AdminOverviewSection";
 import { AdminReleasesSection } from "./admin/AdminReleasesSection";
 import { AdminRewardsSection } from "./admin/AdminRewardsSection";
 import { AdminTopTitlesSection } from "./admin/AdminTopTitlesSection";
+import type {
+  AdminOverview,
+  AdminReward,
+  AdminRewardActivityResponse,
+  AdminSubscriptionSummary,
+  AdminUser,
+  AdminUserPullListResponse,
+  AdminWeeklyRelease,
+  EarnRule,
+  ReleaseFormState,
+  RewardFilter,
+  RewardFormState,
+} from "./admin/types";
 
 type AdminView = "overview" | "releases" | "rewards" | "customers" | "titles";
-type RewardFilter = "all" | "active" | "inactive";
-
-type ReleaseFormState = {
-  title: string;
-  issue: string;
-  publisher: string;
-  price: string;
-  releaseDate: string;
-  coverImageUrl: string;
-  seriesKey: string;
-};
-
-type RewardFormState = {
-  title: string;
-  description: string;
-  cost: string;
-  code: string;
-  active: boolean;
-};
-
-type EarnRule = {
-  id: string;
-  label: string;
-  points: number;
-  description?: string;
-};
 
 const emptyReleaseForm: ReleaseFormState = {
   title: "",
@@ -81,22 +68,23 @@ export default function AdminScreen() {
 
   const overviewQuery = useQuery({
     queryKey: ["admin-overview"],
-    queryFn: async () => (await adminApi.getOverview(api)).data,
+    queryFn: async () => (await adminApi.getOverview(api)).data as AdminOverview,
   });
 
   const releasesQuery = useQuery({
     queryKey: ["admin-weekly-releases"],
-    queryFn: async () => (await adminApi.getWeeklyReleases(api)).data.releases,
+    queryFn: async () =>
+      (await adminApi.getWeeklyReleases(api)).data.releases as AdminWeeklyRelease[],
   });
 
   const rewardsQuery = useQuery({
     queryKey: ["admin-rewards"],
-    queryFn: async () => (await adminApi.getRewards(api)).data.rewards,
+    queryFn: async () => (await adminApi.getRewards(api)).data.rewards as AdminReward[],
   });
 
   const usersQuery = useQuery({
     queryKey: ["admin-users"],
-    queryFn: async () => (await adminApi.getUsers(api)).data.users,
+    queryFn: async () => (await adminApi.getUsers(api)).data.users as AdminUser[],
   });
 
   const earnRulesQuery = useQuery({
@@ -106,18 +94,21 @@ export default function AdminScreen() {
 
   const subscriptionsQuery = useQuery({
     queryKey: ["admin-subscriptions"],
-    queryFn: async () => (await adminApi.getSubscriptions(api)).data.subscriptions,
+    queryFn: async () =>
+      (await adminApi.getSubscriptions(api)).data.subscriptions as AdminSubscriptionSummary[],
   });
 
   const userPullListQuery = useQuery({
     queryKey: ["admin-user-pull-list", selectedUserId],
-    queryFn: async () => (await adminApi.getUserPullList(api, selectedUserId!)).data,
+    queryFn: async () =>
+      (await adminApi.getUserPullList(api, selectedUserId!)).data as AdminUserPullListResponse,
     enabled: Boolean(selectedUserId),
   });
 
   const rewardActivityQuery = useQuery({
     queryKey: ["admin-user-reward-activity", selectedUserId],
-    queryFn: async () => (await adminApi.getUserRewardActivity(api, selectedUserId!)).data,
+    queryFn: async () =>
+      (await adminApi.getUserRewardActivity(api, selectedUserId!)).data as AdminRewardActivityResponse,
     enabled: Boolean(selectedUserId),
   });
 
@@ -287,7 +278,7 @@ export default function AdminScreen() {
   ].some((query) => getApiErrorMessage(query.error).includes("admin access"));
 
   const selectedUser = useMemo(
-    () => usersQuery.data?.find((user: { _id: string }) => user._id === selectedUserId),
+    () => usersQuery.data?.find((user) => user._id === selectedUserId),
     [selectedUserId, usersQuery.data]
   );
 
@@ -299,7 +290,7 @@ export default function AdminScreen() {
     const needle = releaseSearch.trim().toLowerCase();
     if (!needle) return releasesQuery.data ?? [];
 
-    return (releasesQuery.data ?? []).filter((release: any) =>
+    return (releasesQuery.data ?? []).filter((release) =>
       [release.title, release.publisher, release.seriesKey].some((value) =>
         String(value ?? "")
           .toLowerCase()
@@ -310,7 +301,7 @@ export default function AdminScreen() {
 
   const filteredRewards = useMemo(() => {
     const needle = rewardSearch.trim().toLowerCase();
-    return (rewardsQuery.data ?? []).filter((reward: any) => {
+    return (rewardsQuery.data ?? []).filter((reward) => {
       const matchesText =
         !needle ||
         [reward.title, reward.description, reward.code].some((value) =>
@@ -331,7 +322,7 @@ export default function AdminScreen() {
     const needle = customerSearch.trim().toLowerCase();
     if (!needle) return usersQuery.data ?? [];
 
-    return (usersQuery.data ?? []).filter((user: any) =>
+    return (usersQuery.data ?? []).filter((user) =>
       [user.email, user.firstName, user.lastName].some((value) =>
         String(value ?? "")
           .toLowerCase()
@@ -344,7 +335,7 @@ export default function AdminScreen() {
     const needle = titleSearch.trim().toLowerCase();
     if (!needle) return subscriptionsQuery.data ?? [];
 
-    return (subscriptionsQuery.data ?? []).filter((item: any) =>
+    return (subscriptionsQuery.data ?? []).filter((item) =>
       [item.title, item.publisher, item._id].some((value) =>
         String(value ?? "")
           .toLowerCase()

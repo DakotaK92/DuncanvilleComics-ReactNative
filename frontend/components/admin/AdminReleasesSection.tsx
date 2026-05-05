@@ -8,16 +8,7 @@ import {
   SecondaryButton,
   SectionTitle,
 } from "./AdminUi";
-
-type ReleaseFormState = {
-  title: string;
-  issue: string;
-  publisher: string;
-  price: string;
-  releaseDate: string;
-  coverImageUrl: string;
-  seriesKey: string;
-};
+import type { AdminWeeklyRelease, ReleaseFormState } from "./types";
 
 export function AdminReleasesSection({
   editingReleaseId,
@@ -37,7 +28,7 @@ export function AdminReleasesSection({
   emptyReleaseForm: ReleaseFormState;
   releaseMutationPending: boolean;
   releaseSearch: string;
-  filteredReleases: any[];
+  filteredReleases: AdminWeeklyRelease[];
   setReleaseForm: Dispatch<SetStateAction<ReleaseFormState>>;
   setEditingReleaseId: Dispatch<SetStateAction<string | null>>;
   setReleaseSearch: Dispatch<SetStateAction<string>>;
@@ -135,7 +126,7 @@ export function AdminReleasesSection({
         subtitle={`${filteredReleases.length} matching books`}
         lightPanel
       />
-      {filteredReleases.map((release: any) => (
+      {filteredReleases.map((release: AdminWeeklyRelease) => (
         <RecordCard
           key={release.id}
           title={`${release.title} #${release.issue}`}

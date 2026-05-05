@@ -2,6 +2,7 @@ import type { Dispatch, SetStateAction } from "react";
 import { View } from "react-native";
 
 import { Field, RecordCard, SectionTitle } from "./AdminUi";
+import type { AdminSubscriptionSummary } from "./types";
 
 export function AdminTopTitlesSection({
   titleSearch,
@@ -9,7 +10,7 @@ export function AdminTopTitlesSection({
   setTitleSearch,
 }: {
   titleSearch: string;
-  filteredSubscriptions: any[];
+  filteredSubscriptions: AdminSubscriptionSummary[];
   setTitleSearch: Dispatch<SetStateAction<string>>;
 }) {
   return (
@@ -25,7 +26,7 @@ export function AdminTopTitlesSection({
         darkLabel
         onChangeText={setTitleSearch}
       />
-      {filteredSubscriptions.map((item: any, index: number) => (
+      {filteredSubscriptions.map((item: AdminSubscriptionSummary, index: number) => (
         <RecordCard
           key={item._id}
           tone="highlight"

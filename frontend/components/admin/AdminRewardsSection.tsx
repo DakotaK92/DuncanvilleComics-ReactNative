@@ -9,16 +9,7 @@ import {
   SecondaryButton,
   SectionTitle,
 } from "./AdminUi";
-
-type RewardFilter = "all" | "active" | "inactive";
-
-type RewardFormState = {
-  title: string;
-  description: string;
-  cost: string;
-  code: string;
-  active: boolean;
-};
+import type { AdminReward, RewardFilter, RewardFormState } from "./types";
 
 export function AdminRewardsSection({
   editingRewardId,
@@ -41,7 +32,7 @@ export function AdminRewardsSection({
   rewardMutationPending: boolean;
   rewardSearch: string;
   rewardFilter: RewardFilter;
-  filteredRewards: any[];
+  filteredRewards: AdminReward[];
   setRewardForm: Dispatch<SetStateAction<RewardFormState>>;
   setEditingRewardId: Dispatch<SetStateAction<string | null>>;
   setRewardSearch: Dispatch<SetStateAction<string>>;
@@ -150,7 +141,7 @@ export function AdminRewardsSection({
         subtitle={`${filteredRewards.length} matching rewards`}
         lightPanel
       />
-      {filteredRewards.map((reward: any) => (
+      {filteredRewards.map((reward: AdminReward) => (
         <RecordCard
           key={reward.id}
           title={`${reward.title} â€¢ ${reward.cost} coins`}
