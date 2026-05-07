@@ -132,10 +132,10 @@ MONGO_URI=your_mongodb_connection_string
 CLERK_PUBLISHABLE_KEY=your_clerk_publishable_key
 CLERK_SECRET_KEY=your_clerk_secret_key
 ARCJET_KEY=your_arcjet_key
-ADMIN_EMAILS=dakotaking92@gmail.com
+ADMIN_EMAILS= *
 RESEND_API_KEY=re_replace_me
 RESEND_FROM_EMAIL=onboarding@resend.dev
-STORE_EMAIL=dakotaking92@gmail.com
+STORE_EMAIL= *
 ```
 
 Notes:
@@ -155,38 +155,6 @@ EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY=your_clerk_publishable_key
 
 If `EXPO_PUBLIC_API_URL` is not set, the frontend tries to infer the Expo host and then falls back to `http://localhost:3000/api`.
 
-## Install Dependencies
-
-### Backend
-
-```bash
-cd backend
-npm install
-```
-
-### Frontend
-
-```bash
-cd frontend
-npm install
-```
-
-## Run Locally
-
-### Start the backend
-
-```bash
-cd backend
-npm run dev
-```
-
-### Start the frontend
-
-```bash
-cd frontend
-npm start
-```
-
 ## Admin Access
 
 Admin access uses two layers:
@@ -197,7 +165,7 @@ Admin access uses two layers:
 To allow only the intended admin:
 
 ```env
-ADMIN_EMAILS=dakotaking92@gmail.com
+ADMIN_EMAILS= *
 ```
 
 After changing admin env values, restart or redeploy the backend.
