@@ -1,18 +1,25 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import {
-  ActivityIndicator,
+  RefreshControl,
   ScrollView,
   Text,
   TouchableOpacity,
   View,
 } from "react-native";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { adminApi, getApiErrorMessage, useApiClient } from "../utils/api";
+import {
+  adminApi,
+  getApiErrorMessage,
+  getFriendlyApiErrorMessage,
+  useApiClient,
+} from "../utils/api";
 import { AdminCustomersSection } from "./admin/AdminCustomersSection";
 import { AdminOverviewSection } from "./admin/AdminOverviewSection";
 import { AdminReleasesSection } from "./admin/AdminReleasesSection";
 import { AdminRewardsSection } from "./admin/AdminRewardsSection";
 import { AdminTopTitlesSection } from "./admin/AdminTopTitlesSection";
+import StateMessage from "./StateMessage";
+import ToastBanner from "./ToastBanner";
 import type {
   AdminOverview,
   AdminReward,
@@ -52,6 +59,7 @@ export default function AdminScreen() {
   const queryClient = useQueryClient();
   const [activeView, setActiveView] = useState<AdminView>("overview");
   const [notice, setNotice] = useState<string | null>(null);
+  const [noticeTone, setNoticeTone] = useState<"success" | "error" | "info">("success");
   const [editingReleaseId, setEditingReleaseId] = useState<string | null>(null);
   const [editingRewardId, setEditingRewardId] = useState<string | null>(null);
   const [releaseForm, setReleaseForm] = useState<ReleaseFormState>(emptyReleaseForm);
@@ -65,6 +73,7 @@ export default function AdminScreen() {
   const [selectedEarnRuleId, setSelectedEarnRuleId] = useState("");
   const [adjustmentAmount, setAdjustmentAmount] = useState("");
   const [adjustmentNote, setAdjustmentNote] = useState("");
+  const hasSeenInitialSectionDataRef = useRef(false);
 
   const overviewQuery = useQuery({
     queryKey: ["admin-overview"],
@@ -128,6 +137,7 @@ export default function AdminScreen() {
       });
     },
     onSuccess: () => {
+      setNoticeTone("success");
       setNotice("Reward points awarded.");
       setAdjustmentNote("");
       queryClient.invalidateQueries({ queryKey: ["admin-users"] });
@@ -135,7 +145,10 @@ export default function AdminScreen() {
       queryClient.invalidateQueries({ queryKey: ["rewards-summary"] });
       queryClient.invalidateQueries({ queryKey: ["admin-overview"] });
     },
-    onError: (error) => setNotice(getApiErrorMessage(error)),
+    onError: (error) => {
+      setNoticeTone("error");
+      setNotice(getFriendlyApiErrorMessage(error));
+    },
   });
 
   const releaseMutation = useMutation({
@@ -153,13 +166,17 @@ export default function AdminScreen() {
       return adminApi.createWeeklyRelease(api, payload);
     },
     onSuccess: () => {
+      setNoticeTone("success");
       setNotice(editingReleaseId ? "Weekly release updated." : "Weekly release created.");
       setEditingReleaseId(null);
       setReleaseForm(emptyReleaseForm);
       queryClient.invalidateQueries({ queryKey: ["admin-weekly-releases"] });
       queryClient.invalidateQueries({ queryKey: ["admin-overview"] });
     },
-    onError: (error) => setNotice(getApiErrorMessage(error)),
+    onError: (error) => {
+      setNoticeTone("error");
+      setNotice(getFriendlyApiErrorMessage(error));
+    },
   });
 
   const rewardMutation = useMutation({
@@ -176,18 +193,23 @@ export default function AdminScreen() {
       return adminApi.createReward(api, payload);
     },
     onSuccess: () => {
+      setNoticeTone("success");
       setNotice(editingRewardId ? "Reward updated." : "Reward created.");
       setEditingRewardId(null);
       setRewardForm(emptyRewardForm);
       queryClient.invalidateQueries({ queryKey: ["admin-rewards"] });
       queryClient.invalidateQueries({ queryKey: ["admin-overview"] });
     },
-    onError: (error) => setNotice(getApiErrorMessage(error)),
+    onError: (error) => {
+      setNoticeTone("error");
+      setNotice(getFriendlyApiErrorMessage(error));
+    },
   });
 
   const deleteReleaseMutation = useMutation({
     mutationFn: (id: string) => adminApi.deleteWeeklyRelease(api, id),
     onSuccess: () => {
+      setNoticeTone("success");
       setNotice("Weekly release deleted.");
       if (editingReleaseId) {
         setEditingReleaseId(null);
@@ -196,12 +218,16 @@ export default function AdminScreen() {
       queryClient.invalidateQueries({ queryKey: ["admin-weekly-releases"] });
       queryClient.invalidateQueries({ queryKey: ["admin-overview"] });
     },
-    onError: (error) => setNotice(getApiErrorMessage(error)),
+    onError: (error) => {
+      setNoticeTone("error");
+      setNotice(getFriendlyApiErrorMessage(error));
+    },
   });
 
   const deleteRewardMutation = useMutation({
     mutationFn: (id: string) => adminApi.deleteReward(api, id),
     onSuccess: () => {
+      setNoticeTone("success");
       setNotice("Reward deleted.");
       if (editingRewardId) {
         setEditingRewardId(null);
@@ -210,7 +236,10 @@ export default function AdminScreen() {
       queryClient.invalidateQueries({ queryKey: ["admin-rewards"] });
       queryClient.invalidateQueries({ queryKey: ["admin-overview"] });
     },
-    onError: (error) => setNotice(getApiErrorMessage(error)),
+    onError: (error) => {
+      setNoticeTone("error");
+      setNotice(getFriendlyApiErrorMessage(error));
+    },
   });
 
   const rewardAdjustmentMutation = useMutation({
@@ -225,6 +254,7 @@ export default function AdminScreen() {
       });
     },
     onSuccess: () => {
+      setNoticeTone("success");
       setNotice("Customer coin balance updated.");
       setAdjustmentAmount("");
       setAdjustmentNote("");
@@ -233,7 +263,10 @@ export default function AdminScreen() {
       queryClient.invalidateQueries({ queryKey: ["rewards-summary"] });
       queryClient.invalidateQueries({ queryKey: ["admin-overview"] });
     },
-    onError: (error) => setNotice(getApiErrorMessage(error)),
+    onError: (error) => {
+      setNoticeTone("error");
+      setNotice(getFriendlyApiErrorMessage(error));
+    },
   });
 
   const rewardStatusMutation = useMutation({
@@ -245,11 +278,15 @@ export default function AdminScreen() {
       status: "pending" | "fulfilled" | "completed";
     }) => adminApi.updateRewardActivityStatus(api, activityId, { status }),
     onSuccess: () => {
+      setNoticeTone("success");
       setNotice("Reward activity updated.");
       queryClient.invalidateQueries({ queryKey: ["admin-user-reward-activity", selectedUserId] });
       queryClient.invalidateQueries({ queryKey: ["rewards-summary"] });
     },
-    onError: (error) => setNotice(getApiErrorMessage(error)),
+    onError: (error) => {
+      setNoticeTone("error");
+      setNotice(getFriendlyApiErrorMessage(error));
+    },
   });
 
   useEffect(() => {
@@ -276,6 +313,15 @@ export default function AdminScreen() {
     usersQuery,
     subscriptionsQuery,
   ].some((query) => getApiErrorMessage(query.error).includes("admin access"));
+  const adminErrorMessage = [
+    overviewQuery.error,
+    releasesQuery.error,
+    rewardsQuery.error,
+    usersQuery.error,
+    subscriptionsQuery.error,
+  ]
+    .map((error) => (error ? getFriendlyApiErrorMessage(error) : null))
+    .find(Boolean);
 
   const selectedUser = useMemo(
     () => usersQuery.data?.find((user) => user._id === selectedUserId),
@@ -343,6 +389,73 @@ export default function AdminScreen() {
       )
     );
   }, [subscriptionsQuery.data, titleSearch]);
+  const activeDataUpdatedAt =
+    activeView === "overview"
+      ? overviewQuery.dataUpdatedAt
+      : activeView === "releases"
+        ? releasesQuery.dataUpdatedAt
+        : activeView === "rewards"
+          ? rewardsQuery.dataUpdatedAt
+          : activeView === "customers"
+            ? Math.max(
+                usersQuery.dataUpdatedAt || 0,
+                userPullListQuery.dataUpdatedAt || 0,
+                rewardActivityQuery.dataUpdatedAt || 0,
+                earnRulesQuery.dataUpdatedAt || 0
+              )
+            : subscriptionsQuery.dataUpdatedAt;
+  const lastUpdatedLabel = activeDataUpdatedAt
+    ? formatLastUpdated(activeDataUpdatedAt)
+    : null;
+  const isRefreshing =
+    (activeView === "overview" && overviewQuery.isRefetching) ||
+    (activeView === "releases" && releasesQuery.isRefetching) ||
+    (activeView === "rewards" && rewardsQuery.isRefetching) ||
+    (activeView === "customers" &&
+      (usersQuery.isRefetching ||
+        userPullListQuery.isRefetching ||
+        rewardActivityQuery.isRefetching ||
+        earnRulesQuery.isRefetching)) ||
+    (activeView === "titles" && subscriptionsQuery.isRefetching);
+
+  useEffect(() => {
+    if (!activeDataUpdatedAt) {
+      return;
+    }
+
+    if (!hasSeenInitialSectionDataRef.current) {
+      hasSeenInitialSectionDataRef.current = true;
+      return;
+    }
+
+    setNoticeTone("info");
+    setNotice("Admin data updated just now.");
+  }, [activeDataUpdatedAt]);
+
+  const handleRefresh = () => {
+    switch (activeView) {
+      case "overview":
+        overviewQuery.refetch();
+        break;
+      case "releases":
+        releasesQuery.refetch();
+        break;
+      case "rewards":
+        rewardsQuery.refetch();
+        break;
+      case "customers":
+        usersQuery.refetch();
+        earnRulesQuery.refetch();
+        if (selectedUserId) {
+          userPullListQuery.refetch();
+          rewardActivityQuery.refetch();
+        }
+        break;
+      case "titles":
+        subscriptionsQuery.refetch();
+        break;
+    }
+  };
 
   if (
     overviewQuery.isPending ||
@@ -352,9 +465,33 @@ export default function AdminScreen() {
     subscriptionsQuery.isPending
   ) {
     return (
-      <View className="flex-1 items-center justify-center">
-        <ActivityIndicator color="#000000" />
-        <Text className="mt-3 font-gothamMedium text-black">Loading admin tools...</Text>
+      <View className="flex-1 justify-center px-6">
+        <StateMessage
+          title="Loading admin tools"
+          message="We’re gathering the latest store data now."
+          loading
+          light
+        />
+      </View>
+    );
+  }
+
+  if (adminErrorMessage && !isForbidden) {
+    return (
+      <View className="flex-1 justify-center px-6">
+        <StateMessage
+          title="Admin tools unavailable"
+          message={adminErrorMessage}
+          actionLabel="Try again"
+          onPressAction={() => {
+            overviewQuery.refetch();
+            releasesQuery.refetch();
+            rewardsQuery.refetch();
+            usersQuery.refetch();
+            subscriptionsQuery.refetch();
+          }}
+          light
+        />
       </View>
     );
   }
@@ -373,16 +510,19 @@ export default function AdminScreen() {
 
   return (
     <View className="flex-1">
-      {notice ? (
-        <View className="mx-4 mt-4 rounded-2xl border border-emerald-400/40 bg-emerald-600 px-4 py-3 shadow">
-          <Text className="text-center font-gothamMedium text-sm text-white">{notice}</Text>
-        </View>
-      ) : null}
+      {notice ? <ToastBanner message={notice} tone={noticeTone} /> : null}
 
       <ScrollView
         className="flex-1"
         contentContainerStyle={{ padding: 16, paddingBottom: 36 }}
         showsVerticalScrollIndicator={false}
+        refreshControl={
+          <RefreshControl
+            refreshing={Boolean(isRefreshing)}
+            onRefresh={handleRefresh}
+            tintColor="#dc2626"
+          />
+        }
       >
         <View className="mb-4">
           <Text className="h-12 rounded bg-red-600 px-4 text-center font-gothamBold text-xl leading-[48px] text-white">
@@ -391,6 +531,11 @@ export default function AdminScreen() {
           <View className="mt-3 self-start rounded-full bg-emerald-600/90 px-3 py-2">
             <Text className="font-gothamMedium text-xs text-white">Admin access active</Text>
           </View>
+          {lastUpdatedLabel ? (
+            <Text className="mt-2 font-gothamMedium text-xs text-red-100">
+              Updated {lastUpdatedLabel}
+            </Text>
+          ) : null}
         </View>
 
         <ScrollView
@@ -504,6 +649,19 @@ export default function AdminScreen() {
       </ScrollView>
     </View>
   );
+}
+
+function formatLastUpdated(value: number) {
+  const date = new Date(value);
+
+  if (Number.isNaN(date.getTime())) {
+    return "just now";
+  }
+
+  return date.toLocaleTimeString(undefined, {
+    hour: "numeric",
+    minute: "2-digit",
+  });
 }
 
 

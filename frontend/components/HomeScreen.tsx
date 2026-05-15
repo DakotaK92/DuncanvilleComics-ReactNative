@@ -1,4 +1,5 @@
 import {
+  Alert,
   Image,
   ImageBackground,
   Linking,
@@ -75,6 +76,10 @@ const HomeScreen = () => {
       await Linking.openURL(url);
     } else {
       console.warn("Can't open URL:", url);
+      Alert.alert(
+        "Link unavailable",
+        "We couldn't open that link on this device right now. Please try again in a moment."
+      );
     }
   };
 

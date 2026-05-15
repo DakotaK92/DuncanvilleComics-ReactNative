@@ -1,8 +1,14 @@
-import { View, Text, FlatList, Pressable, Alert, ActivityIndicator } from "react-native";
-import { useMemo, useState } from "react";
+import { View, Text, FlatList, Pressable, RefreshControl } from "react-native";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Ionicons } from "@expo/vector-icons";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { getApiErrorMessage, rewardsApi, useApiClient } from "../utils/api";
+import {
+  getFriendlyApiErrorMessage,
+  rewardsApi,
+  useApiClient,
+} from "../utils/api";
+import StateMessage from "./StateMessage";
+import ToastBanner from "./ToastBanner";
 import type {
   Reward,
   RewardActivityItem,
@@ -14,8 +20,11 @@ type TabKey = "overview" | "earn" | "redeem" | "badges";
 
 export default function RewardsScreen() {
   const [activeTab, setActiveTab] = useState<TabKey>("overview");
+  const [toastMessage, setToastMessage] = useState<string | null>(null);
+  const [toastTone, setToastTone] = useState<"success" | "error" | "info">("success");
   const api = useApiClient();
   const queryClient = useQueryClient();
+  const hasSeenInitialDataRef = useRef(false);
 
   const rewardsQuery = useQuery({
     queryKey: ["rewards-summary"],
@@ -29,13 +38,12 @@ export default function RewardsScreen() {
     mutationFn: (rewardId: string) => rewardsApi.redeem(api, rewardId),
     onSuccess: (response) => {
       queryClient.invalidateQueries({ queryKey: ["rewards-summary"] });
-      Alert.alert(
-        "Reward redeemed",
-        `${response.data.reward.title} has been redeemed successfully.`
-      );
+      setToastTone("success");
+      setToastMessage(`${response.data.reward.title} redeemed successfully.`);
     },
     onError: (error) => {
-      Alert.alert("Redeem failed", getApiErrorMessage(error));
+      setToastTone("error");
+      setToastMessage(getFriendlyApiErrorMessage(error));
     },
   });
 
@@ -59,11 +67,51 @@ export default function RewardsScreen() {
     [rewardsQuery.data]
   );
   const errorMessage = rewardsQuery.isError
-    ? getApiErrorMessage(rewardsQuery.error)
+    ? getFriendlyApiErrorMessage(
+        rewardsQuery.error,
+        "We couldn't load rewards right now. Please try again in a moment."
+      )
     : null;
+  const isRefreshing = rewardsQuery.isRefetching && !rewardsQuery.isPending;
+  const lastUpdatedLabel = rewardsQuery.dataUpdatedAt
+    ? formatLastUpdated(rewardsQuery.dataUpdatedAt)
+    : null;
+
+  useEffect(() => {
+    if (!toastMessage) {
+      return;
+    }
+
+    const timeout = setTimeout(() => setToastMessage(null), 2200);
+    return () => clearTimeout(timeout);
+  }, [toastMessage]);
+
+  useEffect(() => {
+    if (!rewardsQuery.dataUpdatedAt) {
+      return;
+    }
+
+    if (!hasSeenInitialDataRef.current) {
+      hasSeenInitialDataRef.current = true;
+      return;
+    }
+
+    setToastTone("info");
+    setToastMessage("Rewards updated just now.");
+  }, [rewardsQuery.dataUpdatedAt]);
+
+  const refreshControl = (
+    <RefreshControl
+      refreshing={isRefreshing}
+      onRefresh={() => rewardsQuery.refetch()}
+      tintColor="#dc2626"
+    />
+  );
 
   return (
     <View className="flex-1">
+      {toastMessage ? <ToastBanner message={toastMessage} tone={toastTone} /> : null}
+
       <View className="mx-4 mt-4 flex-row rounded-full bg-white p-1">
         <TabButton
           label="Overview"
@@ -89,17 +137,22 @@ export default function RewardsScreen() {
 
       <View className="flex-1">
         {rewardsQuery.isPending ? (
-          <View className="flex-1 items-center justify-center px-6">
-            <ActivityIndicator color="#000000" />
-            <Text className="font-gothamMedium text-base text-black">
-              Loading rewards...
-            </Text>
+          <View className="flex-1 justify-center px-6">
+            <StateMessage
+              title="Loading rewards"
+              message="We’re gathering your coins, badges, and rewards now."
+              loading
+              light
+            />
           </View>
         ) : rewardsQuery.isError ? (
-          <View className="flex-1 items-center justify-center px-6">
-            <Text className="text-center font-gothamMedium text-base text-white">
-              {errorMessage}
-            </Text>
+          <View className="flex-1 justify-center px-6">
+            <StateMessage
+              title="Rewards unavailable"
+              message={errorMessage ?? "We couldn't load rewards right now."}
+              actionLabel="Try again"
+              onPressAction={() => rewardsQuery.refetch()}
+            />
           </View>
         ) : (
           <>
@@ -109,18 +162,21 @@ export default function RewardsScreen() {
                 lifetimePoints={lifetimePoints}
                 nextReward={nextReward}
                 recentActivity={recentActivity}
+                refreshControl={refreshControl}
+                lastUpdatedLabel={lastUpdatedLabel}
               />
             )}
-            {activeTab === "earn" && <Earn earnRules={earnRules} />}
+            {activeTab === "earn" && <Earn earnRules={earnRules} refreshControl={refreshControl} />}
             {activeTab === "redeem" && (
               <Redeem
                 coins={coins}
                 rewards={rewards}
                 redeemingRewardId={redeemMutation.variables ?? null}
                 onRedeem={(rewardId) => redeemMutation.mutate(rewardId)}
+                refreshControl={refreshControl}
               />
             )}
-            {activeTab === "badges" && <Badges badges={badges} />}
+            {activeTab === "badges" && <Badges badges={badges} refreshControl={refreshControl} />}
           </>
         )}
       </View>
@@ -158,11 +214,15 @@ function Overview({
   lifetimePoints,
   nextReward,
   recentActivity,
+  refreshControl,
+  lastUpdatedLabel,
 }: {
   coins: number;
   lifetimePoints: number;
   nextReward: { title: string; cost: number; remainingCoins: number } | null;
   recentActivity: RewardActivityItem[];
+  refreshControl: React.ReactElement;
+  lastUpdatedLabel: string | null;
 }) {
   const progress = nextReward
     ? Math.max(
@@ -178,6 +238,7 @@ function Overview({
       data={recentActivity}
       keyExtractor={(item) => item.id}
       contentContainerStyle={{ padding: 16, paddingBottom: 28 }}
+      refreshControl={refreshControl}
       ListHeaderComponent={
         <>
           <View className="rounded-2xl bg-red-600 p-5 shadow">
@@ -217,6 +278,11 @@ function Overview({
             <Text className="mt-1 font-gothamLight text-sm text-neutral-500">
               Tracking the current reward week from Sunday through Saturday.
             </Text>
+            {lastUpdatedLabel ? (
+              <Text className="mt-2 font-gothamMedium text-xs text-red-600">
+                Updated {lastUpdatedLabel}
+              </Text>
+            ) : null}
           </View>
         </>
       }
@@ -278,12 +344,19 @@ function StatCard({ label, value }: { label: string; value: string }) {
   );
 }
 
-function Earn({ earnRules }: { earnRules: RewardEarnRule[] }) {
+function Earn({
+  earnRules,
+  refreshControl,
+}: {
+  earnRules: RewardEarnRule[];
+  refreshControl: React.ReactElement;
+}) {
   return (
     <FlatList
       data={earnRules}
       keyExtractor={(item) => item.id}
       contentContainerStyle={{ padding: 16 }}
+      refreshControl={refreshControl}
       renderItem={({ item }) => (
         <View className="mb-3 flex-row items-center rounded-xl bg-white p-4 shadow">
           <Ionicons name={item.icon as never} size={28} color="red" />
@@ -307,11 +380,13 @@ function Redeem({
   rewards,
   redeemingRewardId,
   onRedeem,
+  refreshControl,
 }: {
   coins: number;
   rewards: Reward[];
   redeemingRewardId: string | null;
   onRedeem: (rewardId: string) => void;
+  refreshControl: React.ReactElement;
 }) {
   return (
     <FlatList
@@ -319,6 +394,7 @@ function Redeem({
       numColumns={2}
       keyExtractor={(item) => item._id ?? item.id ?? item.code ?? item.title}
       contentContainerStyle={{ padding: 12 }}
+      refreshControl={refreshControl}
       renderItem={({ item }) => {
         const rewardId = item._id ?? item.id ?? item.code ?? item.title;
         const unlocked = coins >= item.cost;
@@ -352,13 +428,20 @@ function Redeem({
   );
 }
 
-function Badges({ badges }: { badges: RewardBadge[] }) {
+function Badges({
+  badges,
+  refreshControl,
+}: {
+  badges: RewardBadge[];
+  refreshControl: React.ReactElement;
+}) {
   return (
     <FlatList
       data={badges}
       numColumns={3}
       keyExtractor={(item) => item.title}
       contentContainerStyle={{ padding: 12 }}
+      refreshControl={refreshControl}
       renderItem={({ item }) => (
         <View
           className={`m-2 flex-1 items-center rounded-xl p-4 shadow ${
@@ -393,5 +476,18 @@ function formatActivityDate(value: string) {
   return date.toLocaleDateString(undefined, {
     month: "short",
     day: "numeric",
+  });
+}
+
+function formatLastUpdated(value: number) {
+  const date = new Date(value);
+
+  if (Number.isNaN(date.getTime())) {
+    return "just now";
+  }
+
+  return date.toLocaleTimeString(undefined, {
+    hour: "numeric",
+    minute: "2-digit",
   });
 }

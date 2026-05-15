@@ -2,17 +2,18 @@ import {
   View,
   Text,
   FlatList,
-  ActivityIndicator,
   TouchableOpacity,
   ImageBackground,
-  Alert,
+  RefreshControl,
 } from "react-native";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useLocalSearchParams, Stack, router } from "expo-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Ionicons } from "@expo/vector-icons";
 
 import { ComicCard } from "@/components/ComicCard";
+import StateMessage from "@/components/StateMessage";
+import ToastBanner from "@/components/ToastBanner";
 import { CategoryType } from "@/data/home";
 import { weeklyReleases } from "@/data/weeklyComics";
 import { dealsOfTheWeek } from "@/data/dealsOfTheWeek";
@@ -20,7 +21,7 @@ import { preOrders } from "@/data/preOrders";
 import { gradedComics } from "@/data/gradedComics";
 import { backIssues } from "@/data/backIssues";
 import {
-  getApiErrorMessage,
+  getFriendlyApiErrorMessage,
   pullListApi,
   useApiClient,
   weeklyReleasesApi,
@@ -71,7 +72,9 @@ export default function CategoryScreen() {
   const api = useApiClient();
   const queryClient = useQueryClient();
   const [toastMessage, setToastMessage] = useState<string | null>(null);
+  const [toastTone, setToastTone] = useState<"success" | "error" | "info">("success");
   const [pullListFilter, setPullListFilter] = useState<PullListFilter>("all");
+  const hasSeenInitialDataRef = useRef(false);
 
   const weeklyReleasesQuery = useQuery({
     queryKey: ["weekly-releases"],
@@ -104,6 +107,7 @@ export default function CategoryScreen() {
     mutationFn: (comic: { title: string; publisher: string; seriesKey: string }) =>
       pullListApi.add(api, comic),
     onSuccess: (_response, variables) => {
+      setToastTone("success");
       setToastMessage(`${variables.title} added to your pull list.`);
       queryClient.invalidateQueries({ queryKey: ["pull-list"] });
     },
@@ -112,6 +116,7 @@ export default function CategoryScreen() {
   const removeFromPullListMutation = useMutation({
     mutationFn: (id: string) => pullListApi.remove(api, id),
     onSuccess: () => {
+      setToastTone("success");
       setToastMessage("Removed from your pull list.");
       queryClient.invalidateQueries({ queryKey: ["pull-list"] });
     },
@@ -120,10 +125,12 @@ export default function CategoryScreen() {
   const emailStoreMutation = useMutation({
     mutationFn: (filter: PullListFilter) => pullListApi.emailStore(api, { filter }),
     onSuccess: () => {
+      setToastTone("success");
       setToastMessage("Pull list emailed to the store.");
     },
     onError: (error) => {
-      Alert.alert("Email failed", getApiErrorMessage(error));
+      setToastTone("error");
+      setToastMessage(getFriendlyApiErrorMessage(error));
     },
   });
 
@@ -136,6 +143,7 @@ export default function CategoryScreen() {
       seriesKey: string;
     }) => wishListApi.add(api, comic),
     onSuccess: (_response, variables) => {
+      setToastTone("success");
       setToastMessage(`${variables.title} added to your wish list.`);
       queryClient.invalidateQueries({ queryKey: ["wish-list"] });
     },
@@ -144,6 +152,7 @@ export default function CategoryScreen() {
   const removeFromWishListMutation = useMutation({
     mutationFn: (id: string) => wishListApi.remove(api, id),
     onSuccess: () => {
+      setToastTone("success");
       setToastMessage("Removed from your wish list.");
       queryClient.invalidateQueries({ queryKey: ["wish-list"] });
     },
@@ -157,6 +166,20 @@ export default function CategoryScreen() {
     const timeout = setTimeout(() => setToastMessage(null), 2200);
     return () => clearTimeout(timeout);
   }, [toastMessage]);
+
+  useEffect(() => {
+    if (!lastUpdatedAt || !["weekly-releases", "pull-list", "wishlist"].includes(type ?? "")) {
+      return;
+    }
+
+    if (!hasSeenInitialDataRef.current) {
+      hasSeenInitialDataRef.current = true;
+      return;
+    }
+
+    setToastTone("info");
+    setToastMessage("Updated just now.");
+  }, [lastUpdatedAt, type]);
 
   useEffect(() => {
     if (type !== "pull-list") {
@@ -195,6 +218,27 @@ export default function CategoryScreen() {
     (type === "weekly-releases" && weeklyReleasesQuery.isPending) ||
     (type === "pull-list" && pullListQuery.isPending) ||
     (type === "wishlist" && wishListQuery.isPending);
+  const categoryErrorMessage =
+    type === "weekly-releases" && weeklyReleasesQuery.isError
+      ? getFriendlyApiErrorMessage(weeklyReleasesQuery.error)
+      : type === "pull-list" && pullListQuery.isError
+        ? getFriendlyApiErrorMessage(pullListQuery.error)
+        : type === "wishlist" && wishListQuery.isError
+          ? getFriendlyApiErrorMessage(wishListQuery.error)
+          : null;
+  const isRefreshing =
+    (type === "weekly-releases" && weeklyReleasesQuery.isRefetching) ||
+    (type === "pull-list" && pullListQuery.isRefetching) ||
+    (type === "wishlist" && wishListQuery.isRefetching);
+  const lastUpdatedAt =
+    type === "weekly-releases"
+      ? weeklyReleasesQuery.dataUpdatedAt
+      : type === "pull-list"
+        ? pullListQuery.dataUpdatedAt
+        : type === "wishlist"
+          ? wishListQuery.dataUpdatedAt
+          : 0;
+  const lastUpdatedLabel = lastUpdatedAt ? formatLastUpdated(lastUpdatedAt) : null;
 
   const savedSeriesKeys = useMemo(
     () => new Set(pullListItems.map((item) => item.seriesKey)),
@@ -221,12 +265,32 @@ export default function CategoryScreen() {
     );
 
     if (itemsToSend.length === 0) {
-      Alert.alert("Nothing to send", "There are no pull-list books in this view yet.");
+      setToastTone("info");
+      setToastMessage("There are no pull-list books in this view yet.");
       return;
     }
 
     emailStoreMutation.mutate(pullListFilter);
   };
+
+  const handleRefresh = () => {
+    if (type === "weekly-releases") {
+      weeklyReleasesQuery.refetch();
+      pullListQuery.refetch();
+    } else if (type === "pull-list") {
+      pullListQuery.refetch();
+    } else if (type === "wishlist") {
+      wishListQuery.refetch();
+    }
+  };
+
+  const refreshControl = (
+    <RefreshControl
+      refreshing={Boolean(isRefreshing)}
+      onRefresh={handleRefresh}
+      tintColor="#ffffff"
+    />
+  );
 
   return (
     <>
@@ -259,23 +323,38 @@ export default function CategoryScreen() {
         className="flex-1"
         resizeMode="cover"
       >
-        {toastMessage ? (
-          <View className="absolute left-4 right-4 top-4 z-20 rounded-xl bg-emerald-600 px-4 py-3 shadow">
-            <Text className="font-gothamMedium text-center text-sm text-white">
-              {toastMessage}
-            </Text>
-          </View>
-        ) : null}
+        {toastMessage ? <ToastBanner message={toastMessage} tone={toastTone} /> : null}
 
         {isLoading ? (
-          <View className="flex-1 items-center justify-center px-8">
-            <ActivityIndicator color="#ffffff" />
-            <Text className="mt-3 font-gothamMedium text-base text-white">Loading...</Text>
+          <View className="flex-1 justify-center px-8">
+            <StateMessage
+              title="Loading category"
+              message="We’re pulling the latest books together for you."
+              loading
+            />
+          </View>
+        ) : categoryErrorMessage ? (
+          <View className="flex-1 justify-center px-8">
+            <StateMessage
+              title="Category unavailable"
+              message={categoryErrorMessage}
+              actionLabel="Try again"
+              onPressAction={() => {
+                if (type === "weekly-releases") {
+                  weeklyReleasesQuery.refetch();
+                } else if (type === "pull-list") {
+                  pullListQuery.refetch();
+                } else if (type === "wishlist") {
+                  wishListQuery.refetch();
+                }
+              }}
+            />
           </View>
         ) : type === "pull-list" && pullListCount === 0 ? (
           <FlatList
             data={[]}
             contentContainerStyle={{ padding: 16, paddingBottom: 32 }}
+            refreshControl={refreshControl}
             ListHeaderComponent={
               <View className={getHeroCardClassName(type)}>
                 <Text className="font-gothamBold text-3xl text-white">
@@ -284,6 +363,11 @@ export default function CategoryScreen() {
                 <Text className="mt-2 font-gothamLight text-sm leading-5 text-neutral-300">
                   {subtitleMap[type]}
                 </Text>
+                {lastUpdatedLabel ? (
+                  <Text className="mt-2 font-gothamMedium text-xs text-red-100">
+                    Updated {lastUpdatedLabel}
+                  </Text>
+                ) : null}
                 <View className="mt-5 flex-row gap-3">
                   <MetricCard label="Saved series" value={pullListCount.toString()} />
                   <MetricCard label="Ready this week" value={readyCount.toString()} />
@@ -314,6 +398,7 @@ export default function CategoryScreen() {
           <FlatList
             data={[]}
             contentContainerStyle={{ padding: 16, paddingBottom: 32 }}
+            refreshControl={refreshControl}
             ListHeaderComponent={
               <View className={getHeroCardClassName(type)}>
                 <Text className="font-gothamBold text-3xl text-white">
@@ -322,6 +407,11 @@ export default function CategoryScreen() {
                 <Text className="mt-2 font-gothamLight text-sm leading-5 text-neutral-300">
                   {subtitleMap[type]}
                 </Text>
+                {lastUpdatedLabel ? (
+                  <Text className="mt-2 font-gothamMedium text-xs text-red-100">
+                    Updated {lastUpdatedLabel}
+                  </Text>
+                ) : null}
               </View>
             }
             ListEmptyComponent={
@@ -356,6 +446,7 @@ export default function CategoryScreen() {
             data={data}
             keyExtractor={(item) => item.id?.toString?.() ?? item.seriesKey}
             contentContainerStyle={{ padding: 16, paddingBottom: 32 }}
+            refreshControl={refreshControl}
             ListHeaderComponent={
               <View className={getHeroCardClassName(type)}>
                 <Text className="font-gothamBold text-3xl text-white">
@@ -365,6 +456,11 @@ export default function CategoryScreen() {
                 {type && subtitleMap[type] ? (
                   <Text className="mt-2 font-gothamLight text-sm leading-5 text-neutral-300">
                     {subtitleMap[type]}
+                  </Text>
+                ) : null}
+                {lastUpdatedLabel ? (
+                  <Text className="mt-2 font-gothamMedium text-xs text-red-100">
+                    Updated {lastUpdatedLabel}
                   </Text>
                 ) : null}
 
@@ -561,4 +657,17 @@ function FilterChip({
       </Text>
     </TouchableOpacity>
   );
+}
+
+function formatLastUpdated(value: number) {
+  const date = new Date(value);
+
+  if (Number.isNaN(date.getTime())) {
+    return "just now";
+  }
+
+  return date.toLocaleTimeString(undefined, {
+    hour: "numeric",
+    minute: "2-digit",
+  });
 }

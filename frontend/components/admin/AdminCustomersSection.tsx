@@ -1,5 +1,7 @@
 import type { Dispatch, SetStateAction } from "react";
-import { ActivityIndicator, ScrollView, Text, View } from "react-native";
+import { ScrollView, Text, View } from "react-native";
+import { getFriendlyApiErrorMessage } from "../../utils/api";
+import StateMessage from "../StateMessage";
 
 import {
   Field,
@@ -51,8 +53,20 @@ export function AdminCustomersSection({
   setSelectedUserId: Dispatch<SetStateAction<string | null>>;
   selectedUser: AdminUser | undefined;
   selectedUserRewardSummary: AdminRewardActivityUserSummary | undefined;
-  userPullListQuery: { isPending: boolean; data?: { items?: AdminPullListItem[] } };
-  rewardActivityQuery: { isPending: boolean; data?: AdminRewardActivityResponse };
+  userPullListQuery: {
+    isPending: boolean;
+    isError?: boolean;
+    error?: unknown;
+    data?: { items?: AdminPullListItem[] };
+    refetch: () => void;
+  };
+  rewardActivityQuery: {
+    isPending: boolean;
+    isError?: boolean;
+    error?: unknown;
+    data?: AdminRewardActivityResponse;
+    refetch: () => void;
+  };
   earnRules: EarnRule[];
   selectedEarnRuleId: string;
   selectedEarnRule: EarnRule | null;
@@ -162,8 +176,21 @@ export function AdminCustomersSection({
             </View>
           </View>
           {userPullListQuery.isPending ? (
-            <ActivityIndicator color="#000000" />
-          ) : (
+            <StateMessage
+              title="Loading pull list"
+              message="We’re gathering this customer’s saved titles."
+              loading
+              light
+            />
+          ) : userPullListQuery.isError ? (
+            <StateMessage
+              title="Pull list unavailable"
+              message={getFriendlyApiErrorMessage(userPullListQuery.error)}
+              actionLabel="Try again"
+              onPressAction={userPullListQuery.refetch}
+              light
+            />
+          ) : (userPullListQuery.data?.items ?? []).length ? (
             (userPullListQuery.data?.items ?? []).map((item: AdminPullListItem) => (
               <RecordCard
                 key={item._id}
@@ -172,6 +199,12 @@ export function AdminCustomersSection({
                 subtitle={`${item.publisher} | ${item.seriesKey}`}
               />
             ))
+          ) : (
+            <StateMessage
+              title="No pull-list titles yet"
+              message="This customer hasn't saved any recurring titles yet."
+              light
+            />
           )}
           <SectionTitle
             title="Reward Activity"
@@ -179,8 +212,21 @@ export function AdminCustomersSection({
             darkText
           />
           {rewardActivityQuery.isPending ? (
-            <ActivityIndicator color="#000000" />
-          ) : (
+            <StateMessage
+              title="Loading reward activity"
+              message="We’re gathering recent earning and redemption activity."
+              loading
+              light
+            />
+          ) : rewardActivityQuery.isError ? (
+            <StateMessage
+              title="Reward activity unavailable"
+              message={getFriendlyApiErrorMessage(rewardActivityQuery.error)}
+              actionLabel="Try again"
+              onPressAction={rewardActivityQuery.refetch}
+              light
+            />
+          ) : (rewardActivityQuery.data?.activity ?? []).length ? (
             (rewardActivityQuery.data?.activity ?? []).map((item: AdminRewardActivityItem) => (
               <RecordCard
                 key={item.id}
@@ -203,6 +249,12 @@ export function AdminCustomersSection({
                 }
               />
             ))
+          ) : (
+            <StateMessage
+              title="No reward activity yet"
+              message="This customer doesn't have any recent reward entries yet."
+              light
+            />
           )}
         </View>
       ) : null}
