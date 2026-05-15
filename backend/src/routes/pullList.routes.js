@@ -1,10 +1,18 @@
 import express from "express";
+import asyncHandler from "express-async-handler";
 import User from "../models/user.js";
 import PullListItem from "../models/pullListItem.js";
 import WeeklyRelease from "../models/weeklyRelease.js";
 import { ENV } from "../config/env.js";
 import { protectRoute } from "../middleware/auth.middleware.js";
 import { canSendStoreEmail, getResendClient } from "../utils/resend.js";
+import {
+  normalizeSeriesKey,
+  readEnum,
+  readObjectId,
+  readOptionalString,
+  readRequiredString,
+} from "../utils/validation.js";
 
 const router = express.Router();
 
@@ -51,14 +59,12 @@ router.get("/", protectRoute, async (req, res) => {
   });
 });
 
-router.post("/", protectRoute, async (req, res) => {
-  const { title, publisher, seriesKey, notes = "" } = req.body ?? {};
-
-  if (!title || !publisher || !seriesKey) {
-    return res.status(400).json({
-      message: "title, publisher, and seriesKey are required",
-    });
-  }
+router.post("/", protectRoute, asyncHandler(async (req, res) => {
+  const title = readRequiredString(req.body?.title, { field: "title", max: 160 });
+  const publisher = readRequiredString(req.body?.publisher, { field: "publisher", max: 80 });
+  const rawSeriesKey = readRequiredString(req.body?.seriesKey, { field: "seriesKey", max: 160 });
+  const notes = readOptionalString(req.body?.notes, { max: 500 });
+  const seriesKey = normalizeSeriesKey(rawSeriesKey);
 
   const user = await User.findOne({ clerkUserId: req.userId });
 
@@ -73,6 +79,7 @@ router.post("/", protectRoute, async (req, res) => {
         title,
         publisher,
         notes,
+        seriesKey,
         active: true,
       },
     },
@@ -84,9 +91,10 @@ router.post("/", protectRoute, async (req, res) => {
   res.status(201).json({
     item: serializePullListItem(item, matchingRelease),
   });
-});
+}));
 
 router.delete("/:id", protectRoute, async (req, res) => {
+  const itemId = readObjectId(req.params.id, { field: "pull list item id" });
   const user = await User.findOne({ clerkUserId: req.userId });
 
   if (!user) {
@@ -94,7 +102,7 @@ router.delete("/:id", protectRoute, async (req, res) => {
   }
 
   const deleted = await PullListItem.findOneAndDelete({
-    _id: req.params.id,
+    _id: itemId,
     user: user._id,
   });
 
@@ -105,7 +113,7 @@ router.delete("/:id", protectRoute, async (req, res) => {
   res.status(204).send();
 });
 
-router.post("/email-store", protectRoute, async (req, res) => {
+router.post("/email-store", protectRoute, asyncHandler(async (req, res) => {
   if (!canSendStoreEmail()) {
     return res.status(503).json({
       message:
@@ -119,7 +127,9 @@ router.post("/email-store", protectRoute, async (req, res) => {
     return res.status(404).json({ message: "User not found" });
   }
 
-  const filter = req.body?.filter === "ready" ? "ready" : "all";
+  const filter = readEnum(req.body?.filter ?? "all", ["all", "ready"], {
+    field: "filter",
+  });
 
   const pullListItems = await PullListItem.find({ user: user._id, active: true }).sort({
     title: 1,
@@ -264,6 +274,6 @@ router.post("/email-store", protectRoute, async (req, res) => {
     emailId: data?.id || null,
     sentTo: ENV.STORE_EMAIL,
   });
-});
+}));
 
 export default router;

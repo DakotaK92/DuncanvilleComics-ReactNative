@@ -1,9 +1,11 @@
 import express from "express";
+import asyncHandler from "express-async-handler";
 import Reward from "../models/reward.js";
 import RewardTransaction from "../models/rewardTransaction.js";
 import User from "../models/user.js";
 import { defaultEarnRules } from "../data/earnRules.js";
 import { protectRoute } from "../middleware/auth.middleware.js";
+import { readObjectId } from "../utils/validation.js";
 
 const router = express.Router();
 
@@ -58,10 +60,11 @@ router.get("/me", protectRoute, async (req, res) => {
   });
 });
 
-router.post("/redeem/:rewardId", protectRoute, async (req, res) => {
+router.post("/redeem/:rewardId", protectRoute, asyncHandler(async (req, res) => {
+  const rewardId = readObjectId(req.params.rewardId, { field: "rewardId" });
   const [user, reward] = await Promise.all([
     User.findOne({ clerkUserId: req.userId }),
-    Reward.findOne({ _id: req.params.rewardId, active: true }),
+    Reward.findOne({ _id: rewardId, active: true }),
   ]);
 
   if (!user) {
@@ -105,6 +108,6 @@ router.post("/redeem/:rewardId", protectRoute, async (req, res) => {
       lifetimePoints: user.lifetimePoints,
     },
   });
-});
+}));
 
 export default router;

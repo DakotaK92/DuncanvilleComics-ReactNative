@@ -1,4 +1,5 @@
 import express from "express";
+import asyncHandler from "express-async-handler";
 import User from "../models/user.js";
 import Reward from "../models/reward.js";
 import RewardTransaction from "../models/rewardTransaction.js";
@@ -7,18 +8,21 @@ import PullListItem from "../models/pullListItem.js";
 import { defaultEarnRules } from "../data/earnRules.js";
 import { protectRoute } from "../middleware/auth.middleware.js";
 import { protectAdminRoute } from "../middleware/admin.middleware.js";
+import {
+  normalizeSeriesKey,
+  readBoolean,
+  readDate,
+  readEnum,
+  readNumber,
+  readObjectId,
+  readOptionalString,
+  readRequiredString,
+} from "../utils/validation.js";
 
 const router = express.Router();
 
 router.use(protectRoute);
 router.use(protectAdminRoute);
-
-const normalizeSeriesKey = (value = "") =>
-  value
-    .toLowerCase()
-    .trim()
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/^-+|-+$/g, "");
 
 const serializeRelease = (release) => ({
   id: release._id,
@@ -93,58 +97,53 @@ router.get("/weekly-releases", async (_req, res) => {
   res.json({ releases: releases.map(serializeRelease) });
 });
 
-router.post("/weekly-releases", async (req, res) => {
-  const {
-    title,
-    issue,
-    publisher,
-    price,
-    releaseDate,
-    coverImageUrl = "",
-    seriesKey,
-  } = req.body ?? {};
-
-  if (!title || issue == null || !publisher || price == null || !releaseDate) {
-    return res.status(400).json({
-      message: "title, issue, publisher, price, and releaseDate are required",
-    });
-  }
+router.post("/weekly-releases", asyncHandler(async (req, res) => {
+  const title = readRequiredString(req.body?.title, { field: "title", max: 160 });
+  const issue = readNumber(req.body?.issue, { field: "issue", min: 0, max: 9999, integer: true });
+  const publisher = readRequiredString(req.body?.publisher, { field: "publisher", max: 80 });
+  const price = readNumber(req.body?.price, { field: "price", min: 0, max: 10000 });
+  const releaseDate = readDate(req.body?.releaseDate, { field: "releaseDate" });
+  const coverImageUrl = readOptionalString(req.body?.coverImageUrl, { max: 500 });
+  const seriesKey = normalizeSeriesKey(
+    readOptionalString(req.body?.seriesKey, { max: 160 }) || title
+  );
 
   const release = await WeeklyRelease.create({
     title,
-    issueNumber: Number(issue),
-    publisher,
-    price: Number(price),
-    releaseDate: new Date(releaseDate),
-    coverImageUrl,
-    seriesKey: normalizeSeriesKey(seriesKey || title),
-  });
-
-  res.status(201).json({ release: serializeRelease(release) });
-});
-
-router.put("/weekly-releases/:id", async (req, res) => {
-  const {
-    title,
-    issue,
+    issueNumber: issue,
     publisher,
     price,
     releaseDate,
-    coverImageUrl = "",
+    coverImageUrl,
     seriesKey,
-  } = req.body ?? {};
+  });
+
+  res.status(201).json({ release: serializeRelease(release) });
+}));
+
+router.put("/weekly-releases/:id", asyncHandler(async (req, res) => {
+  const releaseId = readObjectId(req.params.id, { field: "release id" });
+  const title = readRequiredString(req.body?.title, { field: "title", max: 160 });
+  const issue = readNumber(req.body?.issue, { field: "issue", min: 0, max: 9999, integer: true });
+  const publisher = readRequiredString(req.body?.publisher, { field: "publisher", max: 80 });
+  const price = readNumber(req.body?.price, { field: "price", min: 0, max: 10000 });
+  const releaseDate = readDate(req.body?.releaseDate, { field: "releaseDate" });
+  const coverImageUrl = readOptionalString(req.body?.coverImageUrl, { max: 500 });
+  const seriesKey = normalizeSeriesKey(
+    readOptionalString(req.body?.seriesKey, { max: 160 }) || title
+  );
 
   const release = await WeeklyRelease.findByIdAndUpdate(
-    req.params.id,
+    releaseId,
     {
       $set: {
         title,
-        issueNumber: Number(issue),
+        issueNumber: issue,
         publisher,
-        price: Number(price),
-        releaseDate: new Date(releaseDate),
+        price,
+        releaseDate,
         coverImageUrl,
-        seriesKey: normalizeSeriesKey(seriesKey || title),
+        seriesKey,
       },
     },
     { new: true }
@@ -155,7 +154,7 @@ router.put("/weekly-releases/:id", async (req, res) => {
   }
 
   res.json({ release: serializeRelease(release) });
-});
+}));
 
 router.delete("/weekly-releases/:id", async (req, res) => {
   const release = await WeeklyRelease.findByIdAndDelete(req.params.id);
@@ -172,38 +171,41 @@ router.get("/rewards", async (_req, res) => {
   res.json({ rewards: rewards.map(serializeReward) });
 });
 
-router.post("/rewards", async (req, res) => {
-  const { title, description = "", cost, active = true, code } = req.body ?? {};
-
-  if (!title || cost == null) {
-    return res.status(400).json({
-      message: "title and cost are required",
-    });
-  }
+router.post("/rewards", asyncHandler(async (req, res) => {
+  const title = readRequiredString(req.body?.title, { field: "title", max: 120 });
+  const description = readOptionalString(req.body?.description, { max: 500 });
+  const cost = readNumber(req.body?.cost, { field: "cost", min: 0, max: 100000 });
+  const active = readBoolean(req.body?.active, { field: "active", defaultValue: true });
+  const code = normalizeSeriesKey(readOptionalString(req.body?.code, { max: 120 }) || title);
 
   const reward = await Reward.create({
     title,
     description,
-    cost: Number(cost),
-    active: Boolean(active),
-    code: normalizeSeriesKey(code || title),
+    cost,
+    active,
+    code,
   });
 
   res.status(201).json({ reward: serializeReward(reward) });
-});
+}));
 
-router.put("/rewards/:id", async (req, res) => {
-  const { title, description = "", cost, active = true, code } = req.body ?? {};
+router.put("/rewards/:id", asyncHandler(async (req, res) => {
+  const rewardId = readObjectId(req.params.id, { field: "reward id" });
+  const title = readRequiredString(req.body?.title, { field: "title", max: 120 });
+  const description = readOptionalString(req.body?.description, { max: 500 });
+  const cost = readNumber(req.body?.cost, { field: "cost", min: 0, max: 100000 });
+  const active = readBoolean(req.body?.active, { field: "active", defaultValue: true });
+  const code = normalizeSeriesKey(readOptionalString(req.body?.code, { max: 120 }) || title);
 
   const reward = await Reward.findByIdAndUpdate(
-    req.params.id,
+    rewardId,
     {
       $set: {
         title,
         description,
-        cost: Number(cost),
-        active: Boolean(active),
-        code: normalizeSeriesKey(code || title),
+        cost,
+        active,
+        code,
       },
     },
     { new: true }
@@ -214,7 +216,7 @@ router.put("/rewards/:id", async (req, res) => {
   }
 
   res.json({ reward: serializeReward(reward) });
-});
+}));
 
 router.delete("/rewards/:id", async (req, res) => {
   const reward = await Reward.findByIdAndDelete(req.params.id);
@@ -261,8 +263,9 @@ router.get("/users", async (_req, res) => {
   res.json({ users });
 });
 
-router.get("/users/:id/pull-list", async (req, res) => {
-  const user = await User.findById(req.params.id);
+router.get("/users/:id/pull-list", asyncHandler(async (req, res) => {
+  const userId = readObjectId(req.params.id, { field: "user id" });
+  const user = await User.findById(userId);
 
   if (!user) {
     return res.status(404).json({ message: "User not found" });
@@ -281,10 +284,11 @@ router.get("/users/:id/pull-list", async (req, res) => {
     },
     items,
   });
-});
+}));
 
-router.get("/users/:id/reward-activity", async (req, res) => {
-  const user = await User.findById(req.params.id);
+router.get("/users/:id/reward-activity", asyncHandler(async (req, res) => {
+  const userId = readObjectId(req.params.id, { field: "user id" });
+  const user = await User.findById(userId);
 
   if (!user) {
     return res.status(404).json({ message: "User not found" });
@@ -305,19 +309,25 @@ router.get("/users/:id/reward-activity", async (req, res) => {
     },
     activity: activity.map(serializeRewardTransaction),
   });
-});
+}));
 
-router.post("/users/:id/reward-adjustments", async (req, res) => {
-  const { amount, note = "" } = req.body ?? {};
-  const parsedAmount = Number(amount);
+router.post("/users/:id/reward-adjustments", asyncHandler(async (req, res) => {
+  const userId = readObjectId(req.params.id, { field: "user id" });
+  const parsedAmount = readNumber(req.body?.amount, {
+    field: "amount",
+    min: -100000,
+    max: 100000,
+    integer: true,
+  });
+  const note = readOptionalString(req.body?.note, { max: 500 });
 
-  if (!Number.isFinite(parsedAmount) || parsedAmount === 0) {
+  if (parsedAmount === 0) {
     return res.status(400).json({
       message: "A non-zero numeric amount is required.",
     });
   }
 
-  const user = await User.findById(req.params.id);
+  const user = await User.findById(userId);
 
   if (!user) {
     return res.status(404).json({ message: "User not found" });
@@ -362,22 +372,26 @@ router.post("/users/:id/reward-adjustments", async (req, res) => {
     },
     transaction: serializeRewardTransaction(transaction),
   });
-});
+}));
 
-router.post("/users/:id/reward-awards", async (req, res) => {
-  const { earnRuleId, amount, note = "" } = req.body ?? {};
+router.post("/users/:id/reward-awards", asyncHandler(async (req, res) => {
+  const userId = readObjectId(req.params.id, { field: "user id" });
+  const earnRuleId = readRequiredString(req.body?.earnRuleId, { field: "earnRuleId", max: 80 });
+  const note = readOptionalString(req.body?.note, { max: 500 });
   const rule = defaultEarnRules.find((item) => item.id === earnRuleId);
-  const parsedAmount = Number(amount ?? rule?.points);
 
   if (!rule) {
     return res.status(400).json({ message: "A valid earn rule is required." });
   }
 
-  if (!Number.isFinite(parsedAmount) || parsedAmount <= 0) {
-    return res.status(400).json({ message: "Award amount must be greater than zero." });
-  }
+  const parsedAmount = readNumber(req.body?.amount ?? rule.points, {
+    field: "amount",
+    min: 1,
+    max: 100000,
+    integer: true,
+  });
 
-  const user = await User.findById(req.params.id);
+  const user = await User.findById(userId);
 
   if (!user) {
     return res.status(404).json({ message: "User not found" });
@@ -406,16 +420,15 @@ router.post("/users/:id/reward-awards", async (req, res) => {
     },
     transaction: serializeRewardTransaction(transaction),
   });
-});
+}));
 
-router.patch("/reward-activity/:id/status", async (req, res) => {
-  const { status } = req.body ?? {};
+router.patch("/reward-activity/:id/status", asyncHandler(async (req, res) => {
+  const activityId = readObjectId(req.params.id, { field: "reward activity id" });
+  const status = readEnum(req.body?.status, ["pending", "fulfilled", "completed"], {
+    field: "status",
+  });
 
-  if (!["pending", "fulfilled", "completed"].includes(String(status))) {
-    return res.status(400).json({ message: "A valid status is required." });
-  }
-
-  const transaction = await RewardTransaction.findById(req.params.id);
+  const transaction = await RewardTransaction.findById(activityId);
 
   if (!transaction) {
     return res.status(404).json({ message: "Reward activity not found" });
@@ -428,7 +441,7 @@ router.patch("/reward-activity/:id/status", async (req, res) => {
     ok: true,
     transaction: serializeRewardTransaction(transaction),
   });
-});
+}));
 
 router.get("/subscriptions", async (_req, res) => {
   const subscriptions = await PullListItem.aggregate([

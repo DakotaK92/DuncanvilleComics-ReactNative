@@ -1,7 +1,15 @@
 import express from "express";
+import asyncHandler from "express-async-handler";
 import User from "../models/user.js";
 import WishListItem from "../models/wishListItem.js";
 import { protectRoute } from "../middleware/auth.middleware.js";
+import {
+  normalizeSeriesKey,
+  readNumber,
+  readObjectId,
+  readOptionalString,
+  readRequiredString,
+} from "../utils/validation.js";
 
 const router = express.Router();
 
@@ -30,14 +38,14 @@ router.get("/", protectRoute, async (req, res) => {
   res.json({ items: items.map(serializeWishListItem) });
 });
 
-router.post("/", protectRoute, async (req, res) => {
-  const { title, issue = 1, publisher, price = 0, seriesKey, notes = "" } = req.body ?? {};
-
-  if (!title || !publisher || !seriesKey) {
-    return res.status(400).json({
-      message: "title, publisher, and seriesKey are required",
-    });
-  }
+router.post("/", protectRoute, asyncHandler(async (req, res) => {
+  const title = readRequiredString(req.body?.title, { field: "title", max: 160 });
+  const publisher = readRequiredString(req.body?.publisher, { field: "publisher", max: 80 });
+  const rawSeriesKey = readRequiredString(req.body?.seriesKey, { field: "seriesKey", max: 160 });
+  const seriesKey = normalizeSeriesKey(rawSeriesKey);
+  const issue = readNumber(req.body?.issue ?? 1, { field: "issue", min: 0, max: 9999, integer: true });
+  const price = readNumber(req.body?.price ?? 0, { field: "price", min: 0, max: 10000 });
+  const notes = readOptionalString(req.body?.notes, { max: 500 });
 
   const user = await User.findOne({ clerkUserId: req.userId });
 
@@ -50,10 +58,11 @@ router.post("/", protectRoute, async (req, res) => {
     {
       $set: {
         title,
-        issue: Number(issue),
+        issue,
         publisher,
-        price: Number(price),
+        price,
         notes,
+        seriesKey,
         active: true,
       },
     },
@@ -61,9 +70,10 @@ router.post("/", protectRoute, async (req, res) => {
   );
 
   res.status(201).json({ item: serializeWishListItem(item) });
-});
+}));
 
 router.delete("/:id", protectRoute, async (req, res) => {
+  const itemId = readObjectId(req.params.id, { field: "wish list item id" });
   const user = await User.findOne({ clerkUserId: req.userId });
 
   if (!user) {
@@ -71,7 +81,7 @@ router.delete("/:id", protectRoute, async (req, res) => {
   }
 
   const deleted = await WishListItem.findOneAndDelete({
-    _id: req.params.id,
+    _id: itemId,
     user: user._id,
   });
 

@@ -1,12 +1,16 @@
 import express from "express";
+import asyncHandler from "express-async-handler";
 import User from "../models/user.js";
 import RewardTransaction from "../models/rewardTransaction.js";
 import { protectRoute } from "../middleware/auth.middleware.js";
+import { readEmail, readOptionalString } from "../utils/validation.js";
 
 const router = express.Router();
 
-router.post("/sync", protectRoute, async (req, res) => {
-  const { email = "", firstName = "", lastName = "" } = req.body ?? {};
+router.post("/sync", protectRoute, asyncHandler(async (req, res) => {
+  const email = readEmail(req.body?.email, { field: "email", required: false });
+  const firstName = readOptionalString(req.body?.firstName, { max: 80 });
+  const lastName = readOptionalString(req.body?.lastName, { max: 80 });
 
   let user = await User.findOne({ clerkUserId: req.userId });
 
@@ -37,7 +41,7 @@ router.post("/sync", protectRoute, async (req, res) => {
   }
 
   res.json({ user });
-});
+}));
 
 router.get("/me", protectRoute, async (req, res) => {
   const user = await User.findOne({ clerkUserId: req.userId });

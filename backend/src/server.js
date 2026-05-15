@@ -13,11 +13,12 @@ import wishListRoutes from './routes/wishList.routes.js';
 import weeklyReleasesRoutes from './routes/weeklyReleases.routes.js';
 import adminRoutes from './routes/admin.routes.js';
 import { canSendStoreEmail } from './utils/resend.js';
+import { HttpError } from './utils/validation.js';
 
 const app = express();
 
 app.use(cors());
-app.use(express.json());
+app.use(express.json({ limit: "1mb" }));
 
 app.use(arcjetMiddleware);
 app.use(clerkMiddleware({ secretKey: ENV.CLERK_SECRET_KEY }));
@@ -58,10 +59,34 @@ app.use("/api/wish-list", wishListRoutes);
 app.use("/api/weekly-releases", weeklyReleasesRoutes);
 app.use("/api/admin", adminRoutes);
 
+app.use("/api", (_req, res) => {
+  res.status(404).json({
+    error: "Not found",
+    message: "That API route does not exist.",
+  });
+});
+
 // error handling middleware
 app.use((err, req, res, next) => {
   console.error("Unhandled error:", err);
-  res.status(500).json({ error: err.message || "Internal server error" });
+  if (err instanceof HttpError) {
+    return res.status(err.status).json({
+      error: "Request validation failed",
+      message: err.message,
+    });
+  }
+
+  if (err?.name === "CastError") {
+    return res.status(400).json({
+      error: "Invalid identifier",
+      message: "One of the provided ids is invalid.",
+    });
+  }
+
+  res.status(500).json({
+    error: "Internal server error",
+    message: "Something went wrong on the server.",
+  });
 });
 
 const startServer = async () => {
