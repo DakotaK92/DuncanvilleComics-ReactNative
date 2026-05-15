@@ -16,7 +16,10 @@ export const useSocialAuth = () => {
     } catch (err) {
       console.warn("Social auth issue", err);
       const provider = strategy === "oauth_google" ? "Google" : "Apple";
-      Alert.alert("Error", `Failed to sign in with ${provider}. Please try again.`);
+      Alert.alert(
+        `${provider} sign-in unavailable`,
+        `We couldn't finish signing you in with ${provider} right now. Please try again in a moment.`
+      );
     } finally {
       setIsLoading(false);
     }

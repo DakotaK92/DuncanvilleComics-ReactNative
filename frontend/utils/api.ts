@@ -54,6 +54,60 @@ export const getApiErrorMessage = (error: unknown) => {
   return "Something went wrong while talking to the backend.";
 };
 
+export const getFriendlyApiErrorMessage = (
+  error: unknown,
+  fallback = "Something went wrong. Please try again."
+) => {
+  const message = getApiErrorMessage(error);
+  const normalized = message.toLowerCase();
+
+  if (normalized.includes("can't reach the backend")) {
+    return "We couldn't connect to Duncanville Comics right now. Please check your connection and try again.";
+  }
+
+  if (normalized.includes("unauthorized") || normalized.includes("you must be logged in")) {
+    return "Your session is not ready yet. Please wait a moment and try again.";
+  }
+
+  if (normalized.includes("admin access")) {
+    return "This account doesn't have access to the store admin tools.";
+  }
+
+  if (normalized.includes("user not found")) {
+    return "We couldn't find your customer profile yet. Please sign out and back in if this keeps happening.";
+  }
+
+  if (normalized.includes("pull list is empty")) {
+    return "There aren't any pull-list books to send yet.";
+  }
+
+  if (normalized.includes("no pull-list books ready this week")) {
+    return "There aren't any pull-list books ready to send this week yet.";
+  }
+
+  if (normalized.includes("reward not found")) {
+    return "That reward isn't available anymore.";
+  }
+
+  if (normalized.includes("weekly release not found")) {
+    return "That weekly release could not be found anymore.";
+  }
+
+  if (normalized.includes("wish list item not found")) {
+    return "That wish-list book could not be found anymore.";
+  }
+
+  if (normalized.includes("pull list item not found")) {
+    return "That pull-list book could not be found anymore.";
+  }
+
+  if (normalized.includes("must be") || normalized.includes("is required")) {
+    return message;
+  }
+
+  return message || fallback;
+};
+
 export const createApiClient = (
   getToken: () => Promise<string | null>
 ): AxiosInstance => {

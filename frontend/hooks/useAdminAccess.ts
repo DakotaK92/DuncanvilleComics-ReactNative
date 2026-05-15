@@ -24,6 +24,7 @@ export const useAdminAccess = () => {
 
   return {
     ...query,
+    isExpectedAdminEmail,
     isAdmin: isExpectedAdminEmail && query.isSuccess,
     isForbidden,
     errorMessage,

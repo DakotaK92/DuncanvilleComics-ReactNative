@@ -5,7 +5,7 @@ import { useAuth, useUser } from "@clerk/clerk-expo";
 import {
   API_BASE_URL,
   BACKEND_WAKE_TIMEOUT_MS,
-  getApiErrorMessage,
+  getFriendlyApiErrorMessage,
   useApiClient,
   userApi,
 } from "../utils/api";
@@ -77,7 +77,7 @@ export const useUserSync = () => {
             }
 
             if (!cancelled) {
-              const message = getApiErrorMessage(error);
+              const message = getFriendlyApiErrorMessage(error);
 
               if (isUnauthorized) {
                 console.warn("User sync skipped until Clerk session is fully ready.");
