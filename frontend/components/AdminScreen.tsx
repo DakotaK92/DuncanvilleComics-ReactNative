@@ -32,6 +32,7 @@ import type {
   ReleaseFormState,
   RewardFilter,
   RewardFormState,
+  WeeklyReleaseImportPreview,
 } from "./admin/types";
 
 type AdminView = "overview" | "releases" | "rewards" | "customers" | "titles";
@@ -66,6 +67,8 @@ export default function AdminScreen() {
   const [rewardForm, setRewardForm] = useState<RewardFormState>(emptyRewardForm);
   const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
   const [releaseSearch, setReleaseSearch] = useState("");
+  const [importCsvText, setImportCsvText] = useState("");
+  const [releaseImportPreview, setReleaseImportPreview] = useState<WeeklyReleaseImportPreview | null>(null);
   const [rewardSearch, setRewardSearch] = useState("");
   const [customerSearch, setCustomerSearch] = useState("");
   const [titleSearch, setTitleSearch] = useState("");
@@ -219,6 +222,56 @@ export default function AdminScreen() {
       queryClient.invalidateQueries({ queryKey: ["admin-overview"] });
     },
     onError: (error) => {
+      setNoticeTone("error");
+      setNotice(getFriendlyApiErrorMessage(error));
+    },
+  });
+
+  const previewReleaseImportMutation = useMutation({
+    mutationFn: async () =>
+      (
+        await adminApi.previewWeeklyReleaseImport(api, {
+          csvText: importCsvText,
+        })
+      ).data.preview as WeeklyReleaseImportPreview,
+    onSuccess: (preview) => {
+      setReleaseImportPreview(preview);
+      setNoticeTone("info");
+      setNotice(
+        preview.summary.invalidRows > 0
+          ? "Preview loaded. Fix the flagged rows before publishing."
+          : "Preview loaded. Ready to publish this week."
+      );
+    },
+    onError: (error) => {
+      setNoticeTone("error");
+      setNotice(getFriendlyApiErrorMessage(error));
+    },
+  });
+
+  const publishReleaseImportMutation = useMutation({
+    mutationFn: async () =>
+      await adminApi.publishWeeklyReleaseImport(api, {
+        csvText: importCsvText,
+      }),
+    onSuccess: (response) => {
+      setNoticeTone("success");
+      setNotice(
+        `Published ${response.data.importedCount} weekly releases and archived ${response.data.archivedCount} older books.`
+      );
+      setImportCsvText("");
+      setReleaseImportPreview(null);
+      setEditingReleaseId(null);
+      setReleaseForm(emptyReleaseForm);
+      queryClient.invalidateQueries({ queryKey: ["admin-weekly-releases"] });
+      queryClient.invalidateQueries({ queryKey: ["weekly-releases"] });
+      queryClient.invalidateQueries({ queryKey: ["admin-overview"] });
+    },
+    onError: (error) => {
+      const preview = (error as { response?: { data?: { preview?: WeeklyReleaseImportPreview } } })?.response?.data?.preview;
+      if (preview) {
+        setReleaseImportPreview(preview);
+      }
       setNoticeTone("error");
       setNotice(getFriendlyApiErrorMessage(error));
     },
@@ -532,7 +585,7 @@ export default function AdminScreen() {
             <Text className="font-gothamMedium text-xs text-white">Admin access active</Text>
           </View>
           {lastUpdatedLabel ? (
-            <Text className="mt-2 font-gothamMedium text-xs text-red-100">
+            <Text className="mt-2 font-gothamMedium text-xs text-black">
               Updated {lastUpdatedLabel}
             </Text>
           ) : null}
@@ -579,11 +632,18 @@ export default function AdminScreen() {
             emptyReleaseForm={emptyReleaseForm}
             releaseMutationPending={releaseMutation.isPending}
             releaseSearch={releaseSearch}
+            importCsvText={importCsvText}
+            releaseImportPreview={releaseImportPreview}
+            previewImportPending={previewReleaseImportMutation.isPending}
+            publishImportPending={publishReleaseImportMutation.isPending}
             filteredReleases={filteredReleases}
             setReleaseForm={setReleaseForm}
             setEditingReleaseId={setEditingReleaseId}
             setReleaseSearch={setReleaseSearch}
+            setImportCsvText={setImportCsvText}
             onSubmit={() => releaseMutation.mutate()}
+            onPreviewImport={() => previewReleaseImportMutation.mutate()}
+            onPublishImport={() => publishReleaseImportMutation.mutate()}
             onDelete={(id) => deleteReleaseMutation.mutate(id)}
           />
         ) : null}

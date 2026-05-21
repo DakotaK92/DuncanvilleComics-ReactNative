@@ -178,6 +178,14 @@ export const wishListApi = {
 export const adminApi = {
   getOverview: (api: AxiosInstance) => api.get("/admin/overview"),
   getWeeklyReleases: (api: AxiosInstance) => api.get("/admin/weekly-releases"),
+  previewWeeklyReleaseImport: (
+    api: AxiosInstance,
+    payload: { csvText: string }
+  ) => api.post("/admin/weekly-releases/import/preview", payload),
+  publishWeeklyReleaseImport: (
+    api: AxiosInstance,
+    payload: { csvText: string }
+  ) => api.post("/admin/weekly-releases/import/publish", payload),
   createWeeklyRelease: (
     api: AxiosInstance,
     payload: {

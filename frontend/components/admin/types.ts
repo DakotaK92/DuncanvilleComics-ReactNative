@@ -53,6 +53,35 @@ export type AdminWeeklyRelease = {
   releaseDate: string;
   coverImageUrl?: string;
   seriesKey?: string;
+  status?: "current" | "archived";
+  importedAt?: string;
+};
+
+export type WeeklyReleaseImportPreviewRow = {
+  lineNumber: number;
+  title: string;
+  issue: number;
+  publisher: string;
+  price: number;
+  releaseDate: string;
+  coverImageUrl?: string;
+  seriesKey: string;
+};
+
+export type WeeklyReleaseImportPreviewError = {
+  lineNumber: number;
+  title?: string;
+  message: string;
+};
+
+export type WeeklyReleaseImportPreview = {
+  summary: {
+    totalRows: number;
+    validRows: number;
+    invalidRows: number;
+  };
+  releases: WeeklyReleaseImportPreviewRow[];
+  errors: WeeklyReleaseImportPreviewError[];
 };
 
 export type AdminReward = {

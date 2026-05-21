@@ -8,6 +8,7 @@ import PullListItem from "../models/pullListItem.js";
 import { defaultEarnRules } from "../data/earnRules.js";
 import { protectRoute } from "../middleware/auth.middleware.js";
 import { protectAdminRoute } from "../middleware/admin.middleware.js";
+import { parseWeeklyReleaseImport } from "../utils/weeklyReleaseImport.js";
 import {
   normalizeSeriesKey,
   readBoolean,
@@ -20,6 +21,9 @@ import {
 } from "../utils/validation.js";
 
 const router = express.Router();
+const currentReleaseFilter = {
+  $or: [{ status: "current" }, { status: { $exists: false } }],
+};
 
 router.use(protectRoute);
 router.use(protectAdminRoute);
@@ -33,6 +37,8 @@ const serializeRelease = (release) => ({
   releaseDate: release.releaseDate,
   coverImageUrl: release.coverImageUrl,
   seriesKey: release.seriesKey,
+  status: release.status || "current",
+  importedAt: release.importedAt,
 });
 
 const serializeReward = (reward) => ({
@@ -59,7 +65,7 @@ router.get("/overview", async (_req, res) => {
   const [userCount, releaseCount, rewardCount, pullListCount, topSubscriptions] =
     await Promise.all([
       User.countDocuments(),
-      WeeklyRelease.countDocuments(),
+      WeeklyRelease.countDocuments(currentReleaseFilter),
       Reward.countDocuments(),
       PullListItem.countDocuments({ active: true }),
       PullListItem.aggregate([
@@ -93,9 +99,65 @@ router.get("/earn-rules", async (_req, res) => {
 });
 
 router.get("/weekly-releases", async (_req, res) => {
-  const releases = await WeeklyRelease.find().sort({ releaseDate: 1, title: 1 });
+  const releases = await WeeklyRelease.find(currentReleaseFilter).sort({ releaseDate: 1, title: 1 });
   res.json({ releases: releases.map(serializeRelease) });
 });
+
+router.post("/weekly-releases/import/preview", asyncHandler(async (req, res) => {
+  const csvText = readRequiredString(req.body?.csvText, {
+    field: "csvText",
+    max: 300000,
+    preserveWhitespace: true,
+  });
+  const preview = parseWeeklyReleaseImport(csvText);
+
+  res.json({
+    preview: {
+      summary: preview.summary,
+      releases: preview.previewRows,
+      errors: preview.rowErrors,
+    },
+  });
+}));
+
+router.post("/weekly-releases/import/publish", asyncHandler(async (req, res) => {
+  const csvText = readRequiredString(req.body?.csvText, {
+    field: "csvText",
+    max: 300000,
+    preserveWhitespace: true,
+  });
+  const preview = parseWeeklyReleaseImport(csvText);
+
+  if (preview.rowErrors.length > 0) {
+    return res.status(400).json({
+      message: "Fix the invalid CSV rows before publishing this week.",
+      preview: {
+        summary: preview.summary,
+        releases: preview.previewRows,
+        errors: preview.rowErrors,
+      },
+    });
+  }
+
+  const importedAt = new Date();
+  const importRows = preview.importRows.map((row) => ({
+    ...row,
+    importedAt,
+  }));
+
+  const archiveResult = await WeeklyRelease.updateMany(currentReleaseFilter, {
+    $set: { status: "archived" },
+  });
+
+  const createdReleases = await WeeklyRelease.insertMany(importRows, { ordered: true });
+
+  res.status(201).json({
+    ok: true,
+    archivedCount: archiveResult.modifiedCount ?? 0,
+    importedCount: createdReleases.length,
+    releases: createdReleases.map(serializeRelease),
+  });
+}));
 
 router.post("/weekly-releases", asyncHandler(async (req, res) => {
   const title = readRequiredString(req.body?.title, { field: "title", max: 160 });
@@ -116,6 +178,8 @@ router.post("/weekly-releases", asyncHandler(async (req, res) => {
     releaseDate,
     coverImageUrl,
     seriesKey,
+    status: "current",
+    importedAt: new Date(),
   });
 
   res.status(201).json({ release: serializeRelease(release) });

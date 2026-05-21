@@ -2,9 +2,12 @@ import express from "express";
 import WeeklyRelease from "../models/weeklyRelease.js";
 
 const router = express.Router();
+const currentReleaseFilter = {
+  $or: [{ status: "current" }, { status: { $exists: false } }],
+};
 
 router.get("/", async (_req, res) => {
-  const releases = await WeeklyRelease.find().sort({ releaseDate: 1, title: 1 });
+  const releases = await WeeklyRelease.find(currentReleaseFilter).sort({ releaseDate: 1, title: 1 });
 
   res.json({
     releases: releases.map((release) => ({

@@ -38,6 +38,16 @@ const WeeklyReleaseSchema = new mongoose.Schema(
       type: Date,
       required: true,
     },
+    status: {
+      type: String,
+      enum: ["current", "archived"],
+      default: "current",
+      index: true,
+    },
+    importedAt: {
+      type: Date,
+      default: Date.now,
+    },
   },
   { timestamps: true }
 );
