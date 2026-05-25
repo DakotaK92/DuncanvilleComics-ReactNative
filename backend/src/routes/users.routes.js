@@ -4,6 +4,7 @@ import User from "../models/user.js";
 import RewardTransaction from "../models/rewardTransaction.js";
 import { protectRoute } from "../middleware/auth.middleware.js";
 import { readEmail, readOptionalString } from "../utils/validation.js";
+import { Expo } from "expo-server-sdk";
 
 const router = express.Router();
 
@@ -52,5 +53,20 @@ router.get("/me", protectRoute, async (req, res) => {
 
   res.json({ user });
 });
+
+router.post("/push-token", protectRoute, asyncHandler(async (req, res) => {
+  const token = readOptionalString(req.body?.token, { max: 200 });
+
+  if (token && !Expo.isExpoPushToken(token)) {
+    return res.status(400).json({ message: "Invalid Expo push token." });
+  }
+
+  await User.findOneAndUpdate(
+    { clerkUserId: req.userId },
+    { $set: { expoPushToken: token ?? "" } }
+  );
+
+  res.json({ ok: true });
+}));
 
 export default router;

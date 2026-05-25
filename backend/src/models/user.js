@@ -50,6 +50,10 @@ const UserSchema = new mongoose.Schema(
         { code: "collector", label: "Collector" },
       ],
     },
+    expoPushToken: {
+      type: String,
+      default: "",
+    },
   },
   { timestamps: true }
 );

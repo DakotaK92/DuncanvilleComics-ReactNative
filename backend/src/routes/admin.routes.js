@@ -9,6 +9,7 @@ import { defaultEarnRules } from "../data/earnRules.js";
 import { protectRoute } from "../middleware/auth.middleware.js";
 import { protectAdminRoute } from "../middleware/admin.middleware.js";
 import { parseWeeklyReleaseImport } from "../utils/weeklyReleaseImport.js";
+import { sendPushNotifications } from "../utils/notifications.js";
 import {
   normalizeSeriesKey,
   readBoolean,
@@ -150,6 +151,29 @@ router.post("/weekly-releases/import/publish", asyncHandler(async (req, res) => 
   });
 
   const createdReleases = await WeeklyRelease.insertMany(importRows, { ordered: true });
+
+  const newSeriesKeys = createdReleases.map((r) => r.seriesKey);
+  const matchingUserIds = await PullListItem.find({
+    active: true,
+    seriesKey: { $in: newSeriesKeys },
+  }).distinct("user");
+
+  if (matchingUserIds.length > 0) {
+    const usersWithTokens = await User.find({
+      _id: { $in: matchingUserIds },
+      expoPushToken: { $ne: "" },
+    }).select("expoPushToken");
+
+    const tokens = usersWithTokens.map((u) => u.expoPushToken).filter(Boolean);
+
+    if (tokens.length > 0) {
+      sendPushNotifications(tokens, {
+        title: "New issues ready this week",
+        body: "Books from your pull list just dropped. Open the app to check.",
+        data: { screen: "pull-list" },
+      });
+    }
+  }
 
   res.status(201).json({
     ok: true,
