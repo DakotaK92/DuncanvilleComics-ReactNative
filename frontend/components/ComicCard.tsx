@@ -66,7 +66,7 @@ export function ComicCard({
   ]);
 
   return (
-    <View className="mb-4 overflow-hidden rounded-xl bg-white shadow">
+    <View className="mb-4 overflow-hidden rounded-2xl bg-white shadow">
       <View className="flex-row">
         {shouldShowFallbackCover ? (
           <View className="h-40 w-28 items-center justify-between overflow-hidden bg-red-600 px-3 py-4">
@@ -129,7 +129,7 @@ export function ComicCard({
 
           {comic.dealPrice ? (
             <View className="mt-3 flex-row items-center">
-              <Text className="mr-2 text-sm text-gray-400 line-through">
+              <Text className="mr-2 font-gothamLight text-sm text-neutral-400 line-through">
                 ${comic.price.toFixed(2)}
               </Text>
               <Text className="font-gothamBold text-base text-red-600">
@@ -160,7 +160,7 @@ export function ComicCard({
                 <TouchableOpacity
                   disabled={actionDisabled}
                   onPress={onPressAction}
-                  className={`rounded-md px-3 py-2 ${
+                  className={`rounded-xl px-3 py-2 ${
                     actionDisabled ? "bg-neutral-300" : "bg-red-600"
                   }`}
                 >
@@ -178,7 +178,7 @@ export function ComicCard({
                 <TouchableOpacity
                   disabled={secondaryActionDisabled}
                   onPress={onPressSecondaryAction}
-                  className={`rounded-md border px-3 py-2 ${
+                  className={`rounded-xl border px-3 py-2 ${
                     secondaryActionDisabled
                       ? "border-neutral-200 bg-neutral-100"
                       : "border-neutral-300"

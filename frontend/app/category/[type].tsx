@@ -387,7 +387,7 @@ export default function CategoryScreen() {
                 </Text>
                 <TouchableOpacity
                   onPress={() => router.push("/category/weekly-releases")}
-                  className="mt-4 rounded-md bg-red-600 px-4 py-2"
+                  className="mt-4 rounded-xl bg-red-600 px-5 py-2.5"
                 >
                   <Text className="font-gothamMedium text-white">Browse weekly releases</Text>
                 </TouchableOpacity>
@@ -428,7 +428,7 @@ export default function CategoryScreen() {
                 </Text>
                 <TouchableOpacity
                   onPress={() => router.push("/category/back-issues")}
-                  className="mt-4 rounded-md bg-red-600 px-4 py-2"
+                  className="mt-4 rounded-xl bg-red-600 px-5 py-2.5"
                 >
                   <Text className="font-gothamMedium text-white">Browse back issues</Text>
                 </TouchableOpacity>
@@ -437,8 +437,14 @@ export default function CategoryScreen() {
           />
         ) : rawData.length === 0 ? (
           <View className="flex-1 items-center justify-center px-8">
-            <View className="rounded-2xl bg-neutral-900/90 px-6 py-8">
-              <Text className="font-gothamBold text-xl text-white">Category coming soon</Text>
+            <View className="items-center rounded-2xl bg-neutral-900/90 px-6 py-10">
+              <View className="rounded-full bg-white/10 p-4">
+                <Ionicons name="storefront-outline" size={28} color="#d4d4d8" />
+              </View>
+              <Text className="mt-4 font-gothamBold text-xl text-white">Coming soon</Text>
+              <Text className="mt-2 text-center font-gothamLight text-sm leading-5 text-neutral-300">
+                This section is on its way. Check back after the next update.
+              </Text>
             </View>
           </View>
         ) : (

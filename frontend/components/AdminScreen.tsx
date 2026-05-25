@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import {
+  ImageBackground,
   RefreshControl,
   ScrollView,
   Text,
@@ -562,7 +563,11 @@ export default function AdminScreen() {
   }
 
   return (
-    <View className="flex-1">
+    <ImageBackground
+      source={require("../assets/images/imagebackground.png")}
+      className="flex-1"
+      resizeMode="cover"
+    >
       {notice ? <ToastBanner message={notice} tone={noticeTone} /> : null}
 
       <ScrollView
@@ -578,14 +583,14 @@ export default function AdminScreen() {
         }
       >
         <View className="mb-4">
-          <Text className="h-12 rounded bg-red-600 px-4 text-center font-gothamBold text-xl leading-[48px] text-white">
+          <Text className="h-12 rounded-xl bg-red-600 px-4 text-center font-gothamBold text-xl leading-[48px] text-white">
             STORE ADMIN
           </Text>
           <View className="mt-3 self-start rounded-full bg-emerald-600/90 px-3 py-2">
             <Text className="font-gothamMedium text-xs text-white">Admin access active</Text>
           </View>
           {lastUpdatedLabel ? (
-            <Text className="mt-2 font-gothamMedium text-xs text-black">
+            <Text className="mt-2 font-gothamMedium text-xs text-neutral-500">
               Updated {lastUpdatedLabel}
             </Text>
           ) : null}
@@ -609,7 +614,7 @@ export default function AdminScreen() {
               className={`rounded-full border px-4 py-2 ${
                 activeView === key
                   ? "border-red-600 bg-red-600"
-                  : "border-white/15 bg-white/95"
+                  : "border-white/20 bg-white/90"
               }`}
             >
               <Text
@@ -707,7 +712,7 @@ export default function AdminScreen() {
           />
         ) : null}
       </ScrollView>
-    </View>
+    </ImageBackground>
   );
 }
 

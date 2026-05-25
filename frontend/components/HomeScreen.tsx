@@ -75,7 +75,6 @@ const HomeScreen = () => {
     if (supported) {
       await Linking.openURL(url);
     } else {
-      console.warn("Can't open URL:", url);
       Alert.alert(
         "Link unavailable",
         "We couldn't open that link on this device right now. Please try again in a moment."
@@ -120,7 +119,7 @@ const HomeScreen = () => {
           </View>
 
           <View className="mt-5 flex-row flex-wrap gap-2">
-            <InfoPill icon="location" text="101 W Camp Wisdom Rd, Suite J" />
+            <InfoPill icon="navigate" text="101 W Camp Wisdom Rd, Suite J" />
             <InfoPill icon="time" text="Open daily 10 AM - 7 PM" />
             <InfoPill icon="call" text="Call the shop" />
           </View>
@@ -152,6 +151,7 @@ const HomeScreen = () => {
               onPress={() =>
                 item.type ? openCategory(item.type) : router.push(item.route as "/rewards")
               }
+              style={({ pressed }) => ({ opacity: pressed ? 0.75 : 1 })}
               className="min-h-[132px] flex-1 rounded-xl border border-white/10 bg-white/10 p-4"
             >
               <View className="h-10 w-10 items-center justify-center rounded-full bg-white/10 border border-white/15">
@@ -182,6 +182,7 @@ const HomeScreen = () => {
             <Pressable
               key={item.id}
               onPress={() => openCategory(item.type)}
+              style={({ pressed }) => ({ opacity: pressed ? 0.75 : 1 })}
               className="w-[280px] overflow-hidden rounded-xl border border-white/10 bg-white/5"
             >
               <ImageBackground
@@ -209,34 +210,36 @@ const HomeScreen = () => {
           light
         />
 
-        <View className="mt-4 flex-row flex-wrap gap-2">
-          <SecondaryAction
-            label="Call"
-            onPress={() => openLink("tel:+11234567890")}
-            compact
-          />
-          <SecondaryAction
-            label="Email"
-            onPress={() => openLink("mailto:contact@duncanvillebookstore.com")}
-            compact
-          />
-          <SecondaryAction
-            label="Directions"
-            onPress={() =>
-              openLink(
-                "https://www.google.com/maps/search/?api=1&query=101+W+Camp+Wisdom+Road+Suite+J+Duncanville+TX+75116"
-              )
-            }
-            compact
-          />
+        <View className="mt-4 flex-row gap-3">
+          {[
+            { icon: "call" as const, label: "Call", url: "tel:+11234567890" },
+            { icon: "mail" as const, label: "Email", url: "mailto:contact@duncanvillebookstore.com" },
+            { icon: "navigate" as const, label: "Directions", url: "https://www.google.com/maps/search/?api=1&query=101+W+Camp+Wisdom+Road+Suite+J+Duncanville+TX+75116" },
+          ].map((item) => (
+            <Pressable
+              key={item.label}
+              onPress={() => openLink(item.url)}
+              accessibilityLabel={item.label}
+              accessibilityRole="button"
+              style={({ pressed }) => ({ opacity: pressed ? 0.65 : 1 })}
+              className="h-11 w-11 items-center justify-center rounded-full border border-white/20 bg-white/15"
+            >
+              <Ionicons name={item.icon} size={18} color="#fff" />
+            </Pressable>
+          ))}
         </View>
 
-        <View className="mt-4 flex-row items-center gap-3">
+        <View className="mt-4 h-px bg-white/15" />
+
+        <View className="mt-4 flex-row gap-3">
           {socialLinks.map((item) => (
             <Pressable
               key={item.label}
               onPress={() => openLink(item.url)}
-              className="h-11 w-11 items-center justify-center rounded-full bg-red-600"
+              accessibilityLabel={item.label}
+              accessibilityRole="button"
+              style={({ pressed }) => ({ opacity: pressed ? 0.65 : 1 })}
+              className="h-11 w-11 items-center justify-center rounded-full border border-white/20 bg-white/15"
             >
               <Image source={item.icon} className="h-5 w-5" resizeMode="contain" />
             </Pressable>
@@ -258,7 +261,11 @@ function InfoPill({ icon, text }: { icon: keyof typeof Ionicons.glyphMap; text: 
 
 function PrimaryAction({ label, onPress }: { label: string; onPress: () => void }) {
   return (
-    <Pressable onPress={onPress} className="flex-1 rounded-xl bg-red-600 px-4 py-3">
+    <Pressable
+      onPress={onPress}
+      style={({ pressed }) => ({ opacity: pressed ? 0.75 : 1 })}
+      className="flex-1 rounded-xl bg-red-600 px-4 py-3"
+    >
       <Text className="text-center font-gothamBold text-sm text-white">{label}</Text>
     </Pressable>
   );
@@ -276,6 +283,7 @@ function SecondaryAction({
   return (
     <Pressable
       onPress={onPress}
+      style={({ pressed }) => ({ opacity: pressed ? 0.75 : 1 })}
       className={`rounded-xl border border-white/15 bg-white/10 px-4 ${
         compact ? "py-2" : "flex-1 py-3"
       }`}

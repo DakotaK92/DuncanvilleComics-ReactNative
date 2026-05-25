@@ -42,7 +42,7 @@ export default function StateMessage({
       {actionLabel && onPressAction ? (
         <TouchableOpacity
           onPress={onPressAction}
-          className="mt-4 rounded-md bg-red-600 px-4 py-2"
+          className="mt-4 rounded-xl bg-red-600 px-5 py-2.5"
         >
           <Text className="font-gothamMedium text-white">{actionLabel}</Text>
         </TouchableOpacity>

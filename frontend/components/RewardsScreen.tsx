@@ -199,7 +199,7 @@ function TabButton({
       className={`flex-1 rounded-full py-2 ${active ? "bg-red-600" : ""}`}
     >
       <Text
-        className={`text-center font-gothamMedium ${
+        className={`text-center font-gothamMedium text-sm ${
           active ? "text-white" : "text-black"
         }`}
       >
@@ -359,11 +359,11 @@ function Earn({
       refreshControl={refreshControl}
       renderItem={({ item }) => (
         <View className="mb-3 flex-row items-center rounded-xl bg-white p-4 shadow">
-          <Ionicons name={item.icon as never} size={28} color="red" />
+          <Ionicons name={item.icon as never} size={28} color="#dc2626" />
           <View className="ml-4 flex-1">
             <Text className="text-lg font-gothamMedium">{item.label}</Text>
             {item.description ? (
-              <Text className="mt-1 font-gothamLight text-sm text-gray-500">
+              <Text className="mt-1 font-gothamLight text-sm text-neutral-500">
                 {item.description}
               </Text>
             ) : null}
@@ -403,9 +403,9 @@ function Redeem({
         return (
           <View className="m-2 flex-1 rounded-2xl bg-white p-4 shadow">
             <Text className="text-lg font-gothamMedium">{item.title}</Text>
-            <Text className="mb-2 font-gothamLight text-gray-500">{item.cost} coins</Text>
+            <Text className="mb-2 font-gothamLight text-neutral-500">{item.cost} coins</Text>
             {item.description ? (
-              <Text className="mb-3 font-gothamLight text-xs text-gray-500">
+              <Text className="mb-3 font-gothamLight text-xs text-neutral-500">
                 {item.description}
               </Text>
             ) : null}
@@ -414,10 +414,14 @@ function Redeem({
               onPress={() => onRedeem(rewardId)}
               disabled={!unlocked || isRedeeming}
               className={`rounded-xl py-2 ${
-                unlocked ? "bg-red-600" : "bg-gray-300"
+                unlocked ? "bg-red-600" : "bg-neutral-300"
               } ${isRedeeming ? "opacity-70" : ""}`}
             >
-              <Text className="text-center font-semibold text-white">
+              <Text
+                className={`text-center font-gothamMedium text-sm ${
+                  unlocked ? "text-white" : "text-neutral-500"
+                }`}
+              >
                 {isRedeeming ? "Redeeming..." : unlocked ? "Redeem" : "Locked"}
               </Text>
             </Pressable>
@@ -445,17 +449,17 @@ function Badges({
       renderItem={({ item }) => (
         <View
           className={`m-2 flex-1 items-center rounded-xl p-4 shadow ${
-            item.unlocked ?? true ? "bg-white" : "bg-gray-300"
+            item.unlocked ?? true ? "bg-white" : "bg-neutral-300"
           }`}
         >
           <Ionicons
             name="ribbon"
             size={32}
-            color={item.unlocked ?? true ? "red" : "gray"}
+            color={item.unlocked ?? true ? "#dc2626" : "#9ca3af"}
           />
           <Text
             className={`mt-2 text-center text-sm font-gothamMedium ${
-              item.unlocked ?? true ? "text-black" : "text-gray-500"
+              item.unlocked ?? true ? "text-black" : "text-neutral-500"
             }`}
           >
             {item.title}

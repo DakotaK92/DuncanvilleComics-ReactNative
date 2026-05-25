@@ -132,15 +132,21 @@ export function RecordCard({
       className={`rounded-2xl border p-4 ${
         effectiveTone === "highlight"
           ? "border-red-500 bg-red-600"
-          : "border-white/10 bg-white/10"
+          : "border-neutral-200 bg-white"
       }`}
     >
       <View className="flex-row items-start justify-between gap-3">
         <View className="flex-1">
-          <Text className="font-gothamBold text-base text-white">{title}</Text>
+          <Text
+            className={`font-gothamBold text-base ${
+              effectiveTone === "highlight" ? "text-white" : "text-neutral-900"
+            }`}
+          >
+            {title}
+          </Text>
           <Text
             className={`mt-1 font-gothamLight text-sm ${
-              effectiveTone === "highlight" ? "text-red-100" : "text-neutral-300"
+              effectiveTone === "highlight" ? "text-red-100" : "text-neutral-500"
             }`}
           >
             {subtitle}
@@ -173,12 +179,12 @@ export function RecordCard({
               className={`rounded-full px-3 py-2 ${
                 effectiveTone === "highlight"
                   ? "border border-white/20 bg-black/10"
-                  : "bg-red-600/20"
+                  : "border border-neutral-200 bg-neutral-100"
               }`}
             >
               <Text
                 className={`font-gothamMedium text-xs ${
-                  effectiveTone === "highlight" ? "text-white" : "text-red-300"
+                  effectiveTone === "highlight" ? "text-white" : "text-neutral-600"
                 }`}
               >
                 {secondaryActionLabel}
@@ -220,17 +226,13 @@ export function FilterChip({
       onPress={onPress}
       className={`rounded-full border px-4 py-2 ${
         active
-          ? isAccent
-            ? "border-red-600 bg-red-600"
-            : "border-red-600 bg-red-600"
-          : isAccent
-            ? "border-red-300/90 bg-red-500/30"
-            : "border-white/15 bg-white/10"
+          ? "border-red-600 bg-red-600"
+          : "border-neutral-200 bg-white"
       }`}
     >
       <Text
         className={`font-gothamMedium text-sm ${
-          active ? "text-white" : isAccent ? "text-white" : "text-neutral-300"
+          active ? "text-white" : "text-neutral-600"
         }`}
       >
         {label}

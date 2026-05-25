@@ -51,7 +51,7 @@ export default function CategoryHubScreen() {
                 }
                 className="mb-4 overflow-hidden rounded-xl"
               >
-                <Image source={item.backgroundImage} className="h-44 w-full" resizeMode="cover" />
+                <Image source={item.backgroundImage} className="h-44 w-full" contentFit="cover" cachePolicy="memory-disk" />
 
                 <View className="absolute inset-0 bg-black/45 px-5 py-4">
                   <View className="flex-row items-start justify-between">

@@ -18,7 +18,7 @@ const TabsLayout = () => {
         <Tabs
             screenOptions={{
                 headerShown: false,
-                tabBarActiveTintColor: "red",
+                tabBarActiveTintColor: "#dc2626",
                 tabBarInactiveTintColor: "#808080",
                 tabBarStyle: {
                     backgroundColor: "#f8f8f8",
@@ -32,42 +32,42 @@ const TabsLayout = () => {
             <Tabs.Screen
                 name="index"
                 options={{
-                    title: "",
+                    title: "Home",
                     tabBarIcon: ({ color, size}) => <FontAwesome name="home" size={size} color={color} />
                 }}
             />
             <Tabs.Screen
                 name="rewards"
                 options={{
-                    title: "",
+                    title: "Rewards",
                     tabBarIcon: ({ color, size}) => <FontAwesome5 name="award" size={size} color={color} />
                 }}
             />
             <Tabs.Screen
                 name="events"
                 options={{
-                    title: "",
+                    title: "Events",
                     tabBarIcon: ({ color, size}) => <Entypo name="ticket" size={size} color={color} />
                 }}
             />
             <Tabs.Screen
                 name="comics"
                 options={{
-                    title: "",
+                    title: "Comics",
                     tabBarIcon: ({ color, size}) => <Entypo name="book" size={size} color={color} />
                 }}
             />
             <Tabs.Screen
                 name="category"
                 options={{
-                    title: "",
+                    title: "Store",
                     tabBarIcon: ({ color, size}) => <Ionicons name="layers" size={size} color={color} />
                 }}
             />
             <Tabs.Screen
                 name="admin"
                 options={{
-                    title: "",
+                    title: "Admin",
                     href: canSeeAdminTab ? undefined : null,
                     tabBarIcon: ({ color, size}) => <MaterialIcons name="admin-panel-settings" size={size} color={color} />
                 }}

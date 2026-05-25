@@ -17,14 +17,16 @@ const ComicScreen = () => {
       columnWrapperStyle={{ gap: 12 }}
       ListHeaderComponent={
         <View className="pb-5">
-          <Text className="h-12 rounded bg-red-600 px-4 text-center font-gothamBold text-xl leading-[48px] text-white">
-            BEST COMICS TO READ
-          </Text>
-
-          <Text className="mt-4 font-gothamLight text-sm leading-5 text-black">
-            A curated stack of all-time favorites, strong jumping-on points, and books we would
-            hand to someone who wants to leave the shop excited.
-          </Text>
+          <View className="rounded-2xl bg-red-600 px-5 py-5">
+            <View className="self-start">
+              <Text className="font-gothamBold text-2xl text-white">Best Comics to Read</Text>
+              <View className="mt-2 h-1.5 rounded-full bg-white/90" />
+            </View>
+            <Text className="mt-3 font-gothamLight text-sm leading-5 text-red-100">
+              A curated stack of all-time favorites, strong jumping-on points, and books we would
+              hand to someone who wants to leave the shop excited.
+            </Text>
+          </View>
 
           <View className="mt-4 overflow-hidden rounded-2xl bg-white">
             <ImageBackground
@@ -86,13 +88,14 @@ const ComicScreen = () => {
             </View>
           </View>
 
-          <View className="mt-5 flex-row items-end justify-between">
-            <View>
-              <Text className="font-gothamBold text-xl text-black">More Great Picks</Text>
-              <Text className="mt-1 font-gothamLight text-sm text-black">
-                Staff favorites, classics, and books worth chasing down.
-              </Text>
+          <View className="mt-5 rounded-2xl bg-red-600 px-5 py-5">
+            <View className="self-start">
+              <Text className="font-gothamBold text-xl text-white">More Great Picks</Text>
+              <View className="mt-2 h-1.5 w-16 rounded-full bg-white" />
             </View>
+            <Text className="mt-3 font-gothamLight text-sm text-white">
+              Staff favorites, classics, and books worth chasing down.
+            </Text>
           </View>
         </View>
       }
@@ -104,6 +107,7 @@ const ComicCard = ({ comic }: { comic: Comic }) => {
   return (
     <Pressable
       onPress={() => router.push("/category/back-issues")}
+      style={({ pressed }) => ({ opacity: pressed ? 0.75 : 1 })}
       className="mb-3 flex-1 overflow-hidden rounded-2xl bg-white"
     >
       <Image
