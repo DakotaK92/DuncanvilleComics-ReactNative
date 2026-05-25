@@ -148,6 +148,11 @@ export const weeklyReleasesApi = {
   getAll: (api: AxiosInstance) => api.get<{ releases: RemoteComicBook[] }>("/weekly-releases"),
 };
 
+export const userPushTokenApi = {
+  register: (api: AxiosInstance, token: string) =>
+    api.post("/users/push-token", { token }),
+};
+
 export const pullListApi = {
   getAll: (api: AxiosInstance) => api.get<{ items: PullListItem[] }>("/pull-list"),
   add: (

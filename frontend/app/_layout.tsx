@@ -7,6 +7,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { useFonts } from "expo-font";
 import * as SplashScreen from "expo-splash-screen";
 import { useUserSync } from "../hooks/useUserSync";
+import { usePushNotifications } from "../hooks/usePushNotifications";
 
 SplashScreen.preventAutoHideAsync();
 
@@ -14,6 +15,7 @@ const queryClient = new QueryClient();
 
 function AppShell() {
   useUserSync();
+  usePushNotifications();
 
   return (
     <Stack screenOptions={{ headerShown: false }}>
