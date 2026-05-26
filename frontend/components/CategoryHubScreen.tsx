@@ -25,9 +25,12 @@ export default function CategoryHubScreen() {
           keyExtractor={(item) => item.id.toString()}
           contentContainerStyle={{ padding: 16, paddingBottom: 28 }}
           ListHeaderComponent={() => (
-            <View className="my-4 rounded-2xl bg-red-600">
-              <Text className="p-4 font-gothamBold text-3xl text-white">Pull List Hub</Text>
-              <Text className="max-w-[320px] p-4 font-gothamLight text-sm leading-5 text-white">
+            <View className="my-4 rounded-2xl bg-red-600 p-4">
+              <View className="self-start">
+                <Text className="font-gothamBold text-3xl text-white">Pull List Hub</Text>
+                <View className="mt-1 h-1.5 rounded-full bg-white/90" />
+              </View>
+              <Text className="max-w-[320px] pt-3 font-gothamLight text-sm leading-5 text-white">
                 Track weekly books, jump into your active pull list, and keep the next release
                 easy to spot.
               </Text>
@@ -51,17 +54,17 @@ export default function CategoryHubScreen() {
                 }
                 className="mb-4 overflow-hidden rounded-xl"
               >
-                <Image source={item.backgroundImage} className="h-44 w-full" contentFit="cover" cachePolicy="memory-disk" />
+                <Image source={item.backgroundImage} style={{ height: 176, width: "100%" }} resizeMode="cover" />
 
                 <View className="absolute inset-0 bg-black/45 px-5 py-4">
                   <View className="flex-row items-start justify-between">
 
                     {featured ? (
-                      <View className="rounded-full bg-white/20 px-3 py-1">
+                      <View className="rounded-full bg-red-600 px-3 py-1">
                         <Text className="font-gothamMedium text-xs text-white">Quick access</Text>
                       </View>
                     ) : informational ? (
-                      <View className="rounded-full bg-white/20 px-3 py-1">
+                      <View className="rounded-full bg-red-600 px-3 py-1">
                         <Text className="font-gothamMedium text-xs text-white">Featured</Text>
                       </View>
                     ) : null}
@@ -72,16 +75,16 @@ export default function CategoryHubScreen() {
                       <Text className="font-gothamBold text-2xl text-white">{item.title}</Text>
                       <Text className="mt-1 font-gothamLight text-sm text-neutral-200">
                         {item.type === "new-releases"
-                          ? "A featured spotlight card for brand-new readers."
+                          ? ""
                           : item.type === "pull-list"
-                          ? "See upcoming issues from your saved series."
+                          ? ""
                           : item.type === "weekly-releases"
-                            ? "Add this week's books straight into your list."
+                            ? ""
                             : item.type === "wishlist"
-                              ? "Keep a personal shortlist of books to track down."
+                              ? ""
                               : item.type === "back-issues"
-                                ? "Browse older issues and newly added wall books."
-                                : "Browse store picks and release categories."}
+                                ? ""
+                                : ""}
                       </Text>
                     </View>
 

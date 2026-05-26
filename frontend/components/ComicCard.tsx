@@ -77,7 +77,7 @@ export function ComicCard({
             </View>
             <Image
               source={logoImage}
-              className="h-10 w-20"
+              style={{ height: 40, width: 80 }}
               contentFit="contain"
               transition={120}
             />
@@ -93,7 +93,7 @@ export function ComicCard({
         ) : (
           <Image
             source={preferredImageSource}
-            className="h-40 w-28 bg-neutral-200"
+            style={{ height: 160, width: 112, backgroundColor: "#e5e5e5" }}
             contentFit="cover"
             cachePolicy="memory-disk"
             transition={180}

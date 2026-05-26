@@ -18,7 +18,7 @@ export default function StateMessage({
 }) {
   const panelClassName = light ? "bg-white/95" : "bg-neutral-900/90";
   const titleClassName = light ? "text-neutral-950" : "text-white";
-  const bodyClassName = light ? "text-neutral-700" : "text-neutral-300";
+  const bodyClassName = light ? "text-red-600" : "text-neutral-300";
   const iconColor = light ? "#dc2626" : "#f87171";
   const spinnerColor = light ? "#111111" : "#ffffff";
 

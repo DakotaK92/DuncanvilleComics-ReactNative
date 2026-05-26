@@ -8,7 +8,7 @@ const AppHeader = () => {
       <View className="h-10 w-10" />
       <Image
         source={require("../assets/icons/logo.png")}
-        className="h-10 w-24 items-center"
+        className="h-12 w-28 items-center"
       />
       <HeaderMenuButton />
     </View>

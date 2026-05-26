@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { Modal, Pressable, Text, View } from "react-native";
-import { Feather, FontAwesome, FontAwesome5, Ionicons, MaterialIcons } from "@expo/vector-icons";
+import { Entypo, Feather, FontAwesome, FontAwesome5, Ionicons, MaterialIcons } from "@expo/vector-icons";
 import { router, usePathname } from "expo-router";
 import { useUser } from "@clerk/clerk-expo";
 
@@ -11,12 +11,13 @@ type MenuItem = {
   label: string;
   route: string;
   icon:
+    | keyof typeof Entypo.glyphMap
     | keyof typeof Feather.glyphMap
     | keyof typeof FontAwesome.glyphMap
     | keyof typeof FontAwesome5.glyphMap
     | keyof typeof Ionicons.glyphMap
     | keyof typeof MaterialIcons.glyphMap;
-  family: "feather" | "font-awesome" | "font-awesome-5" | "ionicons" | "material";
+  family: "entypo" | "feather" | "font-awesome" | "font-awesome-5" | "ionicons" | "material";
 };
 
 const HeaderMenuButton = () => {
@@ -31,8 +32,8 @@ const HeaderMenuButton = () => {
     () => [
       { label: "Home", route: "/", icon: "home", family: "font-awesome" },
       { label: "Rewards", route: "/rewards", icon: "award", family: "font-awesome-5" },
-      { label: "Upcoming Events", route: "/events", icon: "ticket", family: "ionicons" },
-      { label: "Best Comics", route: "/comics", icon: "book", family: "feather" },
+      { label: "Upcoming Events", route: "/events", icon: "ticket", family: "entypo" },
+      { label: "Best Comics", route: "/comics", icon: "book", family: "entypo" },
       { label: "Pull List Hub", route: "/category", icon: "layers", family: "ionicons" },
       ...(canSeeAdminTab
         ? [
@@ -153,6 +154,8 @@ function MenuIcon({
   const color = active ? "#ffffff" : "#be123c";
 
   switch (family) {
+    case "entypo":
+      return <Entypo name={name as keyof typeof Entypo.glyphMap} size={16} color={color} />;
     case "font-awesome":
       return <FontAwesome name={name as keyof typeof FontAwesome.glyphMap} size={15} color={color} />;
     case "font-awesome-5":

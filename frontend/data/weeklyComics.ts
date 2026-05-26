@@ -8,7 +8,7 @@ export const weeklyReleases: ComicBook[] = [
     publisher: "DC",
     price: 4.99,
     releaseDate: "2025-01-01",
-    coverImage: require("../assets/images/comics/bone.jpg"),
+    coverImage: require("../assets/images/comics/spiderman.jpg"),
   },
   {
     id: "asm-62",

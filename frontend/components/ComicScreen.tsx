@@ -112,7 +112,7 @@ const ComicCard = ({ comic }: { comic: Comic }) => {
     >
       <Image
         source={comic.image}
-        className="h-52 w-full bg-neutral-200"
+        style={{ height: 208, width: "100%", backgroundColor: "#e5e5e5" }}
         contentFit="cover"
         cachePolicy="memory-disk"
         transition={180}

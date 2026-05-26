@@ -58,14 +58,7 @@ const subtitleMap: Partial<Record<CategoryType, string>> = {
 
 type PullListFilter = "all" | "ready";
 
-const getHeroCardClassName = (categoryType?: CategoryType) =>
-  categoryType === "weekly-releases" ||
-  categoryType === "pre-order" ||
-  categoryType === "deals" ||
-  categoryType === "graded" ||
-  categoryType === "back-issues"
-    ? "mb-5 overflow-hidden rounded-2xl bg-red-600 p-5"
-    : "mb-5 overflow-hidden rounded-2xl bg-neutral-900/90 p-5";
+const getHeroCardClassName = () => "mb-5 overflow-hidden rounded-2xl bg-red-600 p-5";
 
 export default function CategoryScreen() {
   const { type } = useLocalSearchParams<{ type: CategoryType }>();
@@ -328,7 +321,7 @@ export default function CategoryScreen() {
         {isLoading ? (
           <View className="flex-1 justify-center px-8">
             <StateMessage
-              title="Loading category"
+              title="Loading - Category"
               message="We’re pulling the latest books together for you."
               loading
             />
@@ -356,15 +349,15 @@ export default function CategoryScreen() {
             contentContainerStyle={{ padding: 16, paddingBottom: 32 }}
             refreshControl={refreshControl}
             ListHeaderComponent={
-              <View className={getHeroCardClassName(type)}>
+              <View className={getHeroCardClassName()}>
                 <Text className="font-gothamBold text-3xl text-white">
                   {type ? titleMap[type] : ""}
                 </Text>
-                <Text className="mt-2 font-gothamLight text-sm leading-5 text-neutral-300">
+                <Text className="mt-2 font-gothamLight text-sm leading-5 text-white">
                   {subtitleMap[type]}
                 </Text>
                 {lastUpdatedLabel ? (
-                  <Text className="mt-2 font-gothamMedium text-xs text-red-100">
+                  <Text className="mt-2 font-gothamMedium text-xs text-white">
                     Updated {lastUpdatedLabel}
                   </Text>
                 ) : null}
@@ -375,21 +368,21 @@ export default function CategoryScreen() {
               </View>
             }
             ListEmptyComponent={
-              <View className="items-center rounded-2xl bg-neutral-900/90 px-6 py-10">
-                <View className="rounded-full bg-red-600/20 p-4">
-                  <Ionicons name="bookmarks" size={28} color="#f87171" />
+              <View className="items-center rounded-2xl bg-red-600 px-6 py-10">
+                <View className="rounded-full bg-white/20 p-4">
+                  <Ionicons name="bookmarks" size={28} color="#ffffff" />
                 </View>
                 <Text className="mt-4 font-gothamBold text-xl text-white">
                   Your pull list is empty
                 </Text>
-                <Text className="mt-2 text-center font-gothamLight text-sm leading-5 text-neutral-300">
+                <Text className="mt-2 text-center font-gothamLight text-sm leading-5 text-white">
                   Add titles from Weekly Releases and they&apos;ll show up here with new issues flagged.
                 </Text>
                 <TouchableOpacity
                   onPress={() => router.push("/category/weekly-releases")}
-                  className="mt-4 rounded-xl bg-red-600 px-5 py-2.5"
+                  className="mt-4 rounded-xl bg-white px-5 py-2.5"
                 >
-                  <Text className="font-gothamMedium text-white">Browse weekly releases</Text>
+                  <Text className="font-gothamMedium text-red-600">Browse weekly releases</Text>
                 </TouchableOpacity>
               </View>
             }
@@ -400,49 +393,49 @@ export default function CategoryScreen() {
             contentContainerStyle={{ padding: 16, paddingBottom: 32 }}
             refreshControl={refreshControl}
             ListHeaderComponent={
-              <View className={getHeroCardClassName(type)}>
+              <View className={getHeroCardClassName()}>
                 <Text className="font-gothamBold text-3xl text-white">
                   {type ? titleMap[type] : ""}
                 </Text>
-                <Text className="mt-2 font-gothamLight text-sm leading-5 text-neutral-300">
+                <Text className="mt-2 font-gothamLight text-sm leading-5 text-white">
                   {subtitleMap[type]}
                 </Text>
                 {lastUpdatedLabel ? (
-                  <Text className="mt-2 font-gothamMedium text-xs text-red-100">
+                  <Text className="mt-2 font-gothamMedium text-xs text-white">
                     Updated {lastUpdatedLabel}
                   </Text>
                 ) : null}
               </View>
             }
             ListEmptyComponent={
-              <View className="items-center rounded-2xl bg-neutral-900/90 px-6 py-10">
-                <View className="rounded-full bg-red-600/20 p-4">
-                  <Ionicons name="heart" size={28} color="#f87171" />
+              <View className="items-center rounded-2xl bg-red-600 px-6 py-10">
+                <View className="rounded-full bg-white/20 p-4">
+                  <Ionicons name="heart" size={28} color="#ffffff" />
                 </View>
                 <Text className="mt-4 font-gothamBold text-xl text-white">
                   Your wish list is empty
                 </Text>
-                <Text className="mt-2 text-center font-gothamLight text-sm leading-5 text-neutral-300">
+                <Text className="mt-2 text-center font-gothamLight text-sm leading-5 text-white">
                   Save books from Back Issues and they&apos;ll stay here until you&apos;re ready to
                   track them down.
                 </Text>
                 <TouchableOpacity
                   onPress={() => router.push("/category/back-issues")}
-                  className="mt-4 rounded-xl bg-red-600 px-5 py-2.5"
+                  className="mt-4 rounded-xl bg-white px-5 py-2.5"
                 >
-                  <Text className="font-gothamMedium text-white">Browse back issues</Text>
+                  <Text className="font-gothamMedium text-red-600">Browse back issues</Text>
                 </TouchableOpacity>
               </View>
             }
           />
         ) : rawData.length === 0 ? (
           <View className="flex-1 items-center justify-center px-8">
-            <View className="items-center rounded-2xl bg-neutral-900/90 px-6 py-10">
-              <View className="rounded-full bg-white/10 p-4">
-                <Ionicons name="storefront-outline" size={28} color="#d4d4d8" />
+            <View className="items-center rounded-2xl bg-red-600/40 px-6 py-10">
+              <View className="rounded-full bg-white/20 p-4">
+                <Ionicons name="storefront-outline" size={28} color="#ffffff" />
               </View>
               <Text className="mt-4 font-gothamBold text-xl text-white">Coming soon</Text>
-              <Text className="mt-2 text-center font-gothamLight text-sm leading-5 text-neutral-300">
+              <Text className="mt-2 text-center font-gothamLight text-sm leading-5 text-white">
                 This section is on its way. Check back after the next update.
               </Text>
             </View>
@@ -454,18 +447,18 @@ export default function CategoryScreen() {
             contentContainerStyle={{ padding: 16, paddingBottom: 32 }}
             refreshControl={refreshControl}
             ListHeaderComponent={
-              <View className={getHeroCardClassName(type)}>
+              <View className={getHeroCardClassName()}>
                 <Text className="font-gothamBold text-3xl text-white">
                   {type ? titleMap[type] : ""}
                 </Text>
 
                 {type && subtitleMap[type] ? (
-                  <Text className="mt-2 font-gothamLight text-sm leading-5 text-neutral-300">
+                  <Text className="mt-2 font-gothamLight text-sm leading-5 text-white">
                     {subtitleMap[type]}
                   </Text>
                 ) : null}
                 {lastUpdatedLabel ? (
-                  <Text className="mt-2 font-gothamMedium text-xs text-red-100">
+                  <Text className="mt-2 font-gothamMedium text-xs text-white/60">
                     Updated {lastUpdatedLabel}
                   </Text>
                 ) : null}
@@ -512,14 +505,14 @@ export default function CategoryScreen() {
             }
             ListEmptyComponent={
               type === "pull-list" && pullListFilter === "ready" ? (
-                <View className="items-center rounded-2xl bg-neutral-900/90 px-6 py-10">
-                  <View className="rounded-full bg-white/10 p-4">
-                    <Ionicons name="checkmark-done" size={28} color="#d4d4d8" />
+                <View className="items-center rounded-2xl bg-red-600/40 px-6 py-10">
+                  <View className="rounded-full bg-white/20 p-4">
+                    <Ionicons name="checkmark-done" size={28} color="#ffffff" />
                   </View>
                   <Text className="mt-4 font-gothamBold text-xl text-white">
                     Nothing ready this week
                   </Text>
-                  <Text className="mt-2 text-center font-gothamLight text-sm leading-5 text-neutral-300">
+                  <Text className="mt-2 text-center font-gothamLight text-sm leading-5 text-white">
                     Your saved series are quiet right now. Switch back to all titles to review the
                     full list.
                   </Text>
@@ -631,9 +624,9 @@ export default function CategoryScreen() {
 
 function MetricCard({ label, value }: { label: string; value: string }) {
   return (
-    <View className="flex-1 rounded-xl bg-white/5 p-4">
+    <View className="flex-1 rounded-xl bg-white/15 p-4">
       <Text className="font-gothamBold text-2xl text-white">{value}</Text>
-      <Text className="mt-1 font-gothamLight text-xs text-neutral-300">{label}</Text>
+      <Text className="mt-1 font-gothamLight text-xs text-white">{label}</Text>
     </View>
   );
 }
@@ -651,12 +644,12 @@ function FilterChip({
     <TouchableOpacity
       onPress={onPress}
       className={`rounded-full px-4 py-2 ${
-        active ? "bg-red-600" : "bg-white/5"
+        active ? "bg-red-600" : "bg-white/15"
       }`}
     >
       <Text
         className={`font-gothamMedium text-sm ${
-          active ? "text-white" : "text-neutral-300"
+          active ? "text-white" : "text-white"
         }`}
       >
         {label}
