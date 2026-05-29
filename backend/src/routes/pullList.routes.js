@@ -193,12 +193,20 @@ router.post("/email-store", protectRoute, asyncHandler(async (req, res) => {
   const htmlItems = itemsToSend
     .map((item) => {
       const issueText = item.issue ? ` #${item.issue}` : "";
-      const readyTag = item.hasNewIssue ? " <em>(ready this week)</em>" : "";
-      const noteText = item.notes
-        ? ` <span>(Notes: ${escapeHtml(item.notes)})</span>`
+      const readyBadge = item.hasNewIssue
+        ? `<span style="background-color:#dc2626;color:#ffffff;font-size:10px;font-weight:700;padding:3px 10px;border-radius:20px;letter-spacing:0.5px;white-space:nowrap;">Ready</span>`
         : "";
-
-      return `<li><strong>${escapeHtml(item.title)}${escapeHtml(issueText)}</strong> (${escapeHtml(item.publisher)})${readyTag}${noteText}</li>`;
+      const noteText = item.notes
+        ? `<div style="font-size:11px;color:#9ca3af;margin-top:3px;">${escapeHtml(item.notes)}</div>`
+        : "";
+      return `<div style="display:flex;justify-content:space-between;align-items:center;padding:12px 14px;border-radius:12px;background-color:#f9fafb;margin-bottom:8px;border:1px solid #f0f0f0;">
+        <div>
+          <div style="font-size:14px;font-weight:700;color:#111827;">${escapeHtml(item.title)}${escapeHtml(issueText)}</div>
+          <div style="font-size:12px;color:#6b7280;margin-top:2px;">${escapeHtml(item.publisher)}</div>
+          ${noteText}
+        </div>
+        ${readyBadge}
+      </div>`;
     })
     .join("");
 
@@ -211,52 +219,50 @@ router.post("/email-store", protectRoute, asyncHandler(async (req, res) => {
     replyTo: user.email || undefined,
     text: textLines.join("\n"),
     html: `
-      <div style="margin:0; background-color:#111111; padding:24px; font-family:Arial, Helvetica, sans-serif; color:#111111;">
-        <div style="margin:0 auto; max-width:640px; overflow:hidden; border-radius:20px; background-color:#ffffff;">
-          <div style="background-color:#dc2626; padding:24px 28px; color:#ffffff;">
-            <div style="font-size:12px; letter-spacing:1.4px; text-transform:uppercase; opacity:0.9;">Duncanville Comics</div>
-            <h1 style="margin:8px 0 0; font-size:28px; line-height:1.2;">Pull List Request</h1>
-            <p style="margin:10px 0 0; font-size:14px; line-height:1.6; color:#fee2e2;">
-              A customer sent their ${
-                filter === "ready" ? "ready-this-week pull list" : "full pull list"
-              } for in-store prep.
+      <div style="margin:0;background-color:#1a1a1a;background-image:url('${ENV.BASE_URL}/public/imagebackground.png');background-size:cover;background-position:center;padding:32px 16px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;">
+        <div style="margin:0 auto;max-width:600px;border-radius:20px;overflow:hidden;box-shadow:0 4px 24px rgba(0,0,0,0.35);">
+
+          <div style="background-color:#dc2626;padding:28px 32px;">
+            <div style="font-size:11px;letter-spacing:2px;text-transform:uppercase;color:#fca5a5;margin-bottom:10px;">Duncanville Comics</div>
+            <h1 style="margin:0;font-size:26px;font-weight:800;color:#ffffff;line-height:1.2;">Pull List Request</h1>
+            <p style="margin:10px 0 0;font-size:14px;color:#fecaca;line-height:1.5;">
+              ${escapeHtml(customerName)} sent their ${filter === "ready" ? "ready-this-week pull list" : "full pull list"} for in-store prep.
             </p>
           </div>
 
-          <div style="padding:24px 28px;">
-            <div style="display:grid; grid-template-columns:repeat(3, minmax(0, 1fr)); gap:12px; margin-bottom:24px;">
-              <div style="border-radius:14px; background-color:#f5f5f5; padding:16px;">
-                <div style="font-size:12px; text-transform:uppercase; letter-spacing:1px; color:#737373;">Customer</div>
-                <div style="margin-top:6px; font-size:16px; font-weight:700; color:#111111;">${escapeHtml(customerName)}</div>
-              </div>
-              <div style="border-radius:14px; background-color:#f5f5f5; padding:16px;">
-                <div style="font-size:12px; text-transform:uppercase; letter-spacing:1px; color:#737373;">Titles</div>
-                <div style="margin-top:6px; font-size:16px; font-weight:700; color:#111111;">${itemsToSend.length}</div>
-              </div>
-              <div style="border-radius:14px; background-color:#f5f5f5; padding:16px;">
-                <div style="font-size:12px; text-transform:uppercase; letter-spacing:1px; color:#737373;">Ready This Week</div>
-                <div style="margin-top:6px; font-size:16px; font-weight:700; color:#111111;">${readyItemsCount}</div>
-              </div>
-            </div>
-
-            <div style="margin-bottom:20px; border-radius:16px; border:1px solid #e5e5e5; padding:18px 20px;">
-              <div style="font-size:13px; line-height:1.7; color:#404040;">
-                <div><strong>Customer:</strong> ${escapeHtml(customerName)}</div>
-                <div><strong>Email:</strong> ${escapeHtml(user.email || "No email on file")}</div>
-                <div><strong>View:</strong> ${
-                  filter === "ready" ? "Ready This Week" : "Full Pull List"
-                }</div>
-              </div>
-            </div>
-
-            <h2 style="margin:0 0 12px; font-size:18px; color:#111111;">Requested Books</h2>
-            <ul style="margin:0; padding-left:20px; color:#262626; line-height:1.8;">
-              ${htmlItems}
-            </ul>
+          <div style="background-color:#fff1f2;padding:16px 32px;border-bottom:1px solid #fecaca;">
+            <table style="width:100%;border-collapse:collapse;">
+              <tr>
+                <td style="padding:0 12px 0 0;width:33%;">
+                  <div style="font-size:11px;text-transform:uppercase;letter-spacing:1px;color:#9ca3af;">Customer</div>
+                  <div style="margin-top:4px;font-size:15px;font-weight:700;color:#111827;">${escapeHtml(customerName)}</div>
+                </td>
+                <td style="padding:0 12px;width:33%;border-left:1px solid #fecaca;">
+                  <div style="font-size:11px;text-transform:uppercase;letter-spacing:1px;color:#9ca3af;padding-left:12px;">Titles</div>
+                  <div style="margin-top:4px;font-size:15px;font-weight:700;color:#dc2626;padding-left:12px;">${itemsToSend.length}</div>
+                </td>
+                <td style="padding:0 0 0 12px;width:33%;border-left:1px solid #fecaca;">
+                  <div style="font-size:11px;text-transform:uppercase;letter-spacing:1px;color:#9ca3af;padding-left:12px;">Ready This Week</div>
+                  <div style="margin-top:4px;font-size:15px;font-weight:700;color:#dc2626;padding-left:12px;">${readyItemsCount}</div>
+                </td>
+              </tr>
+            </table>
           </div>
 
-          <div style="border-top:1px solid #e5e5e5; background-color:#fafafa; padding:18px 28px; font-size:12px; line-height:1.6; color:#737373;">
-            Sent from the Duncanville Comics app.
+          <div style="background-color:#ffffff;padding:28px 32px;">
+            <div style="background-color:#f9fafb;border-left:3px solid #dc2626;border-radius:8px;padding:14px 16px;margin-bottom:24px;">
+              <div style="font-size:13px;color:#374151;line-height:1.8;">
+                <div><span style="color:#9ca3af;">Email:</span> ${escapeHtml(user.email || "No email on file")}</div>
+                <div><span style="color:#9ca3af;">View:</span> ${filter === "ready" ? "Ready This Week" : "Full Pull List"}</div>
+              </div>
+            </div>
+
+            <div style="font-size:11px;text-transform:uppercase;letter-spacing:1.5px;color:#9ca3af;margin-bottom:12px;">Requested Books</div>
+            ${htmlItems}
+          </div>
+
+          <div style="background-color:#f3f4f6;padding:16px 32px;text-align:center;font-size:12px;color:#9ca3af;">
+            Sent from the Duncanville Comics app
           </div>
         </div>
       </div>

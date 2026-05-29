@@ -26,7 +26,7 @@ export function SectionTitle({
       {subtitle ? (
         <Text
           className={`mt-3 font-gothamLight text-sm leading-5 ${
-            darkText || lightPanel ? "text-black" : "text-neutral-300"
+            darkText || lightPanel ? "text-black" : "text-white"
           }`}
         >
           {subtitle}
@@ -55,7 +55,7 @@ export function Field({
     <View>
       <Text
         className={`mb-2 font-gothamMedium text-sm ${
-          darkLabel ? "text-black" : "text-neutral-200"
+          darkLabel ? "text-black" : "text-white"
         }`}
       >
         {label}

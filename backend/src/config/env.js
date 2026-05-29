@@ -4,6 +4,7 @@ dotenv.config();
 
 export const ENV = {
   PORT: process.env.PORT || 3000,
+  BASE_URL: process.env.BASE_URL || `http://localhost:${process.env.PORT || 3000}`,
   NODE_ENV: process.env.NODE_ENV || "development",
   APP_VERSION: process.env.npm_package_version || "unknown",
   DEPLOY_COMMIT:

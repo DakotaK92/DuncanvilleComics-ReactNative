@@ -487,11 +487,11 @@ export default function CategoryScreen() {
                       onPress={handleEmailStore}
                       disabled={emailStoreMutation.isPending}
                       className={`mt-4 flex-row items-center justify-center rounded-xl px-4 py-3 ${
-                        emailStoreMutation.isPending ? "bg-red-500/70" : "bg-red-600"
+                        emailStoreMutation.isPending ? "bg-white/50" : "bg-white"
                       }`}
                     >
-                      <Ionicons name="mail" size={18} color="#ffffff" />
-                      <Text className="ml-2 font-gothamMedium text-sm text-white">
+                      <Ionicons name="mail" size={18} color="#dc2626" />
+                      <Text className="ml-2 font-gothamMedium text-sm text-red-600">
                         {emailStoreMutation.isPending
                           ? "Sending..."
                           : pullListFilter === "ready"
@@ -643,13 +643,13 @@ function FilterChip({
   return (
     <TouchableOpacity
       onPress={onPress}
-      className={`rounded-full px-4 py-2 ${
-        active ? "bg-red-600" : "bg-white/15"
+      className={`rounded-full px-4 py-2.5 ${
+        active ? "bg-white" : "border border-white bg-transparent"
       }`}
     >
       <Text
         className={`font-gothamMedium text-sm ${
-          active ? "text-white" : "text-white"
+          active ? "text-red-600" : "text-white"
         }`}
       >
         {label}
